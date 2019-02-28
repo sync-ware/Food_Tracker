@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity
 
         try {
             mDb = mDBHelper.getWritableDatabase();
+
         } catch (SQLException mSQLException) {
             throw mSQLException;
         }
