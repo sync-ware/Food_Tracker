@@ -69,6 +69,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private void copyDBFile() throws IOException {
         //InputStream mInput = mContext.getAssets().open(DB_NAME);
+        //Resource needs to be lower case
         InputStream mInput = mContext.getResources().openRawResource(R.raw.foodtracker_db);
         OutputStream mOutput = new FileOutputStream(DB_PATH + DB_NAME);
         byte[] mBuffer = new byte[1024];
