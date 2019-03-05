@@ -1,5 +1,6 @@
 package com.csed.foodtracker;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -47,7 +48,11 @@ public class AddRecipeActivity extends AppCompatActivity {
                         ViewGroup.LayoutParams.WRAP_CONTENT
                 );
                 popup.setFocusable(true);
+                if(Build.VERSION.SDK_INT>=21){
+                    popup.setElevation(5.0f);
+                }
                 popup.showAtLocation(view, Gravity.CENTER, 0, 0);
+
 
             }
         });
