@@ -1,5 +1,6 @@
 package com.csed.foodtracker;
 
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -17,12 +18,16 @@ import android.view.MenuItem;
 import android.widget.Button;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private DatabaseHelper mDBHelper;
     private SQLiteDatabase mDb;
+    private ArrayList<Recipe> recipeList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +71,43 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        //Generate a recipe list from the current contents of the database
+        createRecipeList();
 
+    }
+
+    private void createRecipeList(){
+        if (recipeList.isEmpty()){
+            Cursor recipeTable = mDb.rawQuery("SELECT Recipes.recipe_id, Recipes.name, Recipes.description, Recipes.image," +
+                    "Recipes.prep_time, Recipes.calories, Recipes.url FROM Recipes",null);
+
+            recipeTable.moveToPosition(0);
+            while (recipeTable.getPosition() < recipeTable.getCount()){
+                Recipe recipe = new Recipe();
+
+                int id = recipeTable.getInt(recipeTable.getColumnIndex("recipe_id"));
+                String name = recipeTable.getString(recipeTable.getColumnIndex("name"));
+                String description = recipeTable.getString(recipeTable.getColumnIndex("description"));
+                String image = recipeTable.getString(recipeTable.getColumnIndex("image"));
+                String prepTime = recipeTable.getString(recipeTable.getColumnIndex("prep_time"));
+                int calories = recipeTable.getInt(recipeTable.getColumnIndex("calories"));
+                String url = recipeTable.getString(recipeTable.getColumnIndex("url"));
+
+                recipe.setId(id);
+                recipe.setName(name);
+                recipe.setDescription(description);
+                recipe.setImage(image);
+                recipe.setPrepTime(prepTime);
+                recipe.setCalories(calories);
+                recipe.setUrl(url);
+
+                recipeList.add(recipe);
+                recipeTable.moveToNext();
+
+            }
+
+            recipeTable.close();
+        }
     }
 
     @Override

@@ -8,7 +8,7 @@ public class Recipe {
     private String name;
     private String description;
     private String image;
-    private Date prepTime;
+    private String prepTime;
     private int calories;
     private String url;
 
@@ -26,11 +26,11 @@ public class Recipe {
         this.description = description;
     }
 
-    public void setImage(){
-
+    public void setImage(String image){
+        this.image = image;
     }
 
-    public void setPrepTime(Date prepTime){
+    public void setPrepTime(String prepTime){
         this.prepTime = prepTime;
     }
 
@@ -54,7 +54,7 @@ public class Recipe {
         return description;
     }
 
-    public Date getPrepTime(){
+    public String getPrepTime(){
         return prepTime;
     }
 
