@@ -46,6 +46,10 @@ public class Recipe {
         this.url = url;
     }
 
+    public void addIngredient(Ingredient ingredient){
+        ingredients.add(ingredient);
+    }
+
     public int getId(){
         return id;
     }
