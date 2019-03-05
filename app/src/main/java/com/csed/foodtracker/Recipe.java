@@ -1,5 +1,6 @@
 package com.csed.foodtracker;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Recipe {
@@ -11,8 +12,11 @@ public class Recipe {
     private String prepTime;
     private int calories;
     private String url;
+    private ArrayList<Ingredient> ingredients;
 
-    public Recipe(){}
+    public Recipe(){
+        ingredients = new ArrayList<>();
+    }
 
     public void setId(int id){
         this.id = id;
@@ -65,4 +69,9 @@ public class Recipe {
     public String getUrl(){
         return url;
     }
+
+    public ArrayList<Ingredient> getIngredients() {
+        return ingredients;
+    }
+
 }
