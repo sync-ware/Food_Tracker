@@ -7,7 +7,7 @@ public class Ingredient implements Serializable {
     private int id;
     private String name;
     private String bestBefore;
-    private int number;
+    private String number;
 
     public Ingredient(){}
 
@@ -23,7 +23,7 @@ public class Ingredient implements Serializable {
         this.bestBefore = bestBefore;
     }
 
-    public void setNumber(int number){
+    public void setNumber(String number){
         this.number = number;
     }
 
@@ -39,7 +39,7 @@ public class Ingredient implements Serializable {
         return bestBefore;
     }
 
-    public int getNumber(){
+    public String getNumber(){
         return number;
     }
 

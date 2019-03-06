@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity
                 int id = ingredientTable.getInt(ingredientTable.getColumnIndex("ing_id"));
                 String name = ingredientTable.getString(ingredientTable.getColumnIndex("name"));
                 String bestBefore = ingredientTable.getString(ingredientTable.getColumnIndex("best_before"));
-                int num = ingredientTable.getInt(ingredientTable.getColumnIndex("num"));
+                String num = ingredientTable.getString(ingredientTable.getColumnIndex("num"));
 
                 ingredient.setId(id);
                 ingredient.setName(name);

@@ -7,6 +7,9 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -32,10 +35,19 @@ public class AddRecipeActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //Passing the ingredients the user currently has
         final ArrayList<Ingredient> ingredientList = (ArrayList<Ingredient>)
                 getIntent().getSerializableExtra("ingredientList");
 
+        //The Ingredients that belong to a recipe
+        final ArrayList<Ingredient> recipeIngredientList = new ArrayList<>();
 
+        RecyclerView listIngredients = (RecyclerView) findViewById(R.id.list_ingredients);
+        final IngredientAdapter ingAdapter = new IngredientAdapter(recipeIngredientList);
+        listIngredients.setAdapter(ingAdapter);
+        listIngredients.setLayoutManager(new LinearLayoutManager(this));
+        listIngredients.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
+                DividerItemDecoration.VERTICAL));
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -47,8 +59,6 @@ public class AddRecipeActivity extends AppCompatActivity {
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
-
         Button addIngredientButton = (Button) findViewById(R.id.button_add_ingredient);
         addIngredientButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,7 +68,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                         getSystemService(LAYOUT_INFLATER_SERVICE);
                 View popupView = inflater.inflate(R.layout.popup_add_ingredient,null);
 
-                PopupWindow popup = new PopupWindow(
+                final PopupWindow popup = new PopupWindow(
                         popupView,
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT
@@ -77,6 +87,8 @@ public class AddRecipeActivity extends AppCompatActivity {
                 final TextInputEditText textName = (TextInputEditText) popupView.findViewById(R.id.text_name);
                 final EditText textAmount = (EditText) popupView.findViewById(R.id.text_number);
 
+                Button addButton = (Button) popupView.findViewById(R.id.button_confirm_ingredient);
+
                 spInventory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -88,6 +100,18 @@ public class AddRecipeActivity extends AppCompatActivity {
                     @Override
                     public void onNothingSelected(AdapterView<?> adapterView) {
 
+                    }
+                });
+
+                addButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Ingredient ingredient = new Ingredient();
+                        ingredient.setName(textName.getText().toString());
+                        ingredient.setNumber(textAmount.getText().toString());
+                        recipeIngredientList.add(ingredient);
+                        ingAdapter.notifyItemInserted(recipeIngredientList.size());
+                        popup.dismiss();
                     }
                 });
 

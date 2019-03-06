@@ -50,7 +50,7 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.Vi
 
         // Set item views based on your views and data model
         TextView textView = viewHolder.nameTextView;
-        textView.setText(Ingredient.getName());
+        textView.setText(Ingredient.getNumber() + " " + Ingredient.getName());
 
     }
 
