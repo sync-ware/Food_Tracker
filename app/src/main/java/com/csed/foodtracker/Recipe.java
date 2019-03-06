@@ -2,10 +2,14 @@ package com.csed.foodtracker;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
+
+/**
+ * Recipe class that represents an individual recipe.
+ */
 
 public class Recipe implements Serializable {
 
+    //Attributes
     private int id;
     private String name;
     private String description;

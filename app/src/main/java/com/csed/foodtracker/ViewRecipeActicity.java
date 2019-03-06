@@ -22,8 +22,12 @@ public class ViewRecipeActicity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //Retrieve Recipe from intent that was passed on to this activity
         recipe = (Recipe) getIntent().getSerializableExtra("recipe");
 
+        /*Initialise UI elements, all are disable at first and cannot be edited
+        * They are assigned the recipes attributes respectively
+        */
         final TextInputEditText recipeName = (TextInputEditText) findViewById(R.id.text_name);
         recipeName.setText(recipe.getName());
         final TextInputEditText recipeDesc = (TextInputEditText) findViewById(R.id.text_desc);
@@ -35,15 +39,20 @@ public class ViewRecipeActicity extends AppCompatActivity {
         final TextInputEditText recipeUrl = (TextInputEditText) findViewById(R.id.text_url);
         recipeUrl.setText(recipe.getUrl());
 
+        //URL click event, opens the web page into a chrome custom tab
         recipeUrl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Chrome Custom Tabs can be used to open up web pages in the app itself
                 CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
                 CustomTabsIntent customTabsIntent = builder.build();
                 customTabsIntent.launchUrl(getApplicationContext(), Uri.parse(recipeUrl.getText().toString()));
             }
         });
 
+        /*Click event used to switch between editable and non editable, if the user wants to edit the
+        * recipe and then confirm any changes
+        */
         final FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -2,8 +2,13 @@ package com.csed.foodtracker;
 
 import java.io.Serializable;
 
+/**
+ * Ingredient Class that represents an individual Ingredient
+ */
+
 public class Ingredient implements Serializable {
 
+    //Attributes
     private int id;
     private String name;
     private String bestBefore;

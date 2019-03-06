@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        //Initialise Database
         mDBHelper = new DatabaseHelper(this);
 
         try {
@@ -54,17 +55,6 @@ public class MainActivity extends AppCompatActivity
 
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(),AddRecipeActivity.class);
-                intent.putExtra("ingredientList",ingredientList);
-                startActivity(intent);
-
-            }
-        });
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -74,39 +64,50 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        //Sends the list of ingredients user has to the add recipe page
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Intent to transfer from current page to new the add recipe activity
+                Intent intent = new Intent(getApplicationContext(),AddRecipeActivity.class);
+                //Put ingredient list into Intent
+                intent.putExtra("ingredientList",ingredientList);
+                //Begin new activity
+                startActivity(intent);
+
+            }
+        });
+
         //Generate a recipe list from the current contents of the database
         createRecipeList();
 
         //Generate an ingredients list from the current contents of the database
         createIngredientList();
 
-        RecyclerView recipeListView = findViewById(R.id.recipe_recyclerview);
-        RecipeAdapter recipeAdapter = new RecipeAdapter(recipeList);
-        recipeListView.setAdapter(recipeAdapter);
-        recipeListView.setLayoutManager(new LinearLayoutManager(this));
-        recipeListView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
-                DividerItemDecoration.VERTICAL));
-
-        recipeAdapter.setOnItemClickListener(new RecipeAdapter.ClickListener() {
-            @Override
-            public void onItemClick(int position, View v) {
-                Intent intent = new Intent(getApplicationContext(),ViewRecipeActicity.class);
-                intent.putExtra("recipe",recipeList.get(position));
-                startActivity(intent);
-            }
-        });
+        //Draw the UI of the list of recipes, includes clickable event of item in list
+        initialiseListUI();
 
     }
 
+    /**
+     * Method that will go through each row in the database and generate new Recipe object which will
+     * then be added to the list
+     */
     private void createRecipeList(){
+        //Stops items in the list from duplication which can occur when relaunching the activity
         if (recipeList.isEmpty()){
+            //Select SQL Query that pulls data from database and stores it in cursor object
             Cursor recipeTable = mDb.rawQuery("SELECT Recipes.recipe_id, Recipes.name, Recipes.description, Recipes.image," +
                     "Recipes.prep_time, Recipes.calories, Recipes.url FROM Recipes",null);
 
+            //Start at first row
             recipeTable.moveToPosition(0);
+            //Keep looping until you reach the last row
             while (recipeTable.getPosition() < recipeTable.getCount()){
                 Recipe recipe = new Recipe();
 
+                //Retrieve data from each column
                 int id = recipeTable.getInt(recipeTable.getColumnIndex("recipe_id"));
                 String name = recipeTable.getString(recipeTable.getColumnIndex("name"));
                 String description = recipeTable.getString(recipeTable.getColumnIndex("description"));
@@ -115,6 +116,7 @@ public class MainActivity extends AppCompatActivity
                 int calories = recipeTable.getInt(recipeTable.getColumnIndex("calories"));
                 String url = recipeTable.getString(recipeTable.getColumnIndex("url"));
 
+                //Set recipe attributes with data from the database
                 recipe.setId(id);
                 recipe.setName(name);
                 recipe.setDescription(description);
@@ -123,7 +125,9 @@ public class MainActivity extends AppCompatActivity
                 recipe.setCalories(calories);
                 recipe.setUrl(url);
 
+                //Add recipe to the list
                 recipeList.add(recipe);
+                //Next row in table
                 recipeTable.moveToNext();
 
             }
@@ -132,6 +136,10 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Refer to createRecipeList() Method for understanding. Works in exactly the same way except we
+     * are now creating ingredients objects
+     */
     private void createIngredientList(){
         if (ingredientList.isEmpty()){
             Cursor ingredientTable = mDb.rawQuery("SELECT Ingredients.ing_id, Ingredients.name, Ingredients.best_before," +
@@ -159,6 +167,39 @@ public class MainActivity extends AppCompatActivity
             ingredientTable.close();
         }
     }
+
+    /**
+     * Generate List UI
+     */
+    private void initialiseListUI(){
+        //Initialise RecyclerView; This is basically the list itself
+        RecyclerView recipeListView = findViewById(R.id.recipe_recyclerview);
+        /*An adapter is the lists contents, in this case we are having a list of Recipe objects
+        * therefore a custom adapter class is made to be able to parse the Recipe objects into the list
+        */
+        RecipeAdapter recipeAdapter = new RecipeAdapter(recipeList);
+        //Setting the list adapter
+        recipeListView.setAdapter(recipeAdapter);
+        //Generating a layout and dividers for the list
+        recipeListView.setLayoutManager(new LinearLayoutManager(this));
+        recipeListView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
+                DividerItemDecoration.VERTICAL));
+
+        //Item select event
+        recipeAdapter.setOnItemClickListener(new RecipeAdapter.ClickListener() {
+            @Override
+            public void onItemClick(int position, View v) {
+                //Building a new intent to go from the current context to the ViewRecipe page
+                Intent intent = new Intent(getApplicationContext(),ViewRecipeActicity.class);
+                //Passing the recipe that was clicked on to the new page
+                intent.putExtra("recipe",recipeList.get(position));
+                //Beginning the View Recipe Activity
+                startActivity(intent);
+            }
+        });
+    }
+
+    //Default Methods for the activity, you don't need to worry about these at the moment
 
     @Override
     public void onBackPressed() {
