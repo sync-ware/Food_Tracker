@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity
     private DatabaseHelper mDBHelper;
     private SQLiteDatabase mDb;
     private ArrayList<Recipe> recipeList = new ArrayList<>();
+    private ArrayList<Ingredient> ingredientList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,9 @@ public class MainActivity extends AppCompatActivity
         //Generate a recipe list from the current contents of the database
         createRecipeList();
 
+        //Generate an ingredients list from the current contents of the database
+        createIngredientList();
+
         RecyclerView recipeListView = findViewById(R.id.recipe_recyclerview);
         RecipeAdapter recipeAdapter = new RecipeAdapter(recipeList);
         recipeListView.setAdapter(recipeAdapter);
@@ -114,6 +118,29 @@ public class MainActivity extends AppCompatActivity
             }
 
             recipeTable.close();
+        }
+    }
+
+    private void createIngredientList(){
+        if (ingredientList.isEmpty()){
+            Cursor ingredientTable = mDb.rawQuery("SELECT Ingredients.ing_id, Ingredients.name, Ingredients.best_before," +
+                    "Ingredients.num FROM Ingredients", null);
+
+            ingredientTable.moveToPosition(0);
+            while (ingredientTable.getPosition() < ingredientTable.getCount()){
+                Ingredient ingredient = new Ingredient();
+
+                int id = ingredientTable.getInt(ingredientTable.getColumnIndex("ing_id"));
+                String name = ingredientTable.getString(ingredientTable.getColumnIndex("name"));
+                String bestBefore = ingredientTable.getString(ingredientTable.getColumnIndex("best_before"));
+                int num = ingredientTable.getInt(ingredientTable.getColumnIndex("num"));
+
+                ingredient.setId(id);
+                ingredient.setName(name);
+                ingredient.setBestBefore(bestBefore);
+                ingredient.setNumber(num);
+
+            }
         }
     }
 
