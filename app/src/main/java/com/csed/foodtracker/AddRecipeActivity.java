@@ -67,12 +67,13 @@ public class AddRecipeActivity extends AppCompatActivity {
                     popup.setElevation(5.0f);
                 }
 
-                Spinner spInventory = (Spinner) findViewById(R.id.spinner_inventory);
+                Spinner spInventory = (Spinner) popupView.findViewById(R.id.spinner_inventory);
                 ArrayAdapter<Ingredient> adapter = new ArrayAdapter<>(getApplicationContext(),
                         android.R.layout.simple_spinner_item,ingredientList);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spInventory.setAdapter(adapter);
 
+                spInventory.setSelection(0);
 
                 popup.showAtLocation(view, Gravity.CENTER, 0, 0);
 
