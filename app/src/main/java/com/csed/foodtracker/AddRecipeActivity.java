@@ -4,6 +4,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
@@ -13,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -51,8 +54,6 @@ public class AddRecipeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-
-
                 LayoutInflater inflater = (LayoutInflater) getApplicationContext().
                         getSystemService(LAYOUT_INFLATER_SERVICE);
                 View popupView = inflater.inflate(R.layout.popup_add_ingredient,null);
@@ -67,13 +68,33 @@ public class AddRecipeActivity extends AppCompatActivity {
                     popup.setElevation(5.0f);
                 }
 
-                Spinner spInventory = (Spinner) popupView.findViewById(R.id.spinner_inventory);
+                final Spinner spInventory = (Spinner) popupView.findViewById(R.id.spinner_inventory);
                 ArrayAdapter<Ingredient> adapter = new ArrayAdapter<>(getApplicationContext(),
                         android.R.layout.simple_spinner_item,ingredientList);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spInventory.setAdapter(adapter);
 
-                spInventory.setSelection(0);
+                final TextInputEditText textName = (TextInputEditText) popupView.findViewById(R.id.text_name);
+                final EditText textBestBefore = (EditText) popupView.findViewById(R.id.text_bestbefore);
+                final EditText textAmount = (EditText) popupView.findViewById(R.id.text_number);
+
+                spInventory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                        String ingredientString = adapterView.getItemAtPosition(i).toString();
+                        textName.setText(ingredientString.substring(0,ingredientString.indexOf(',')));
+                        ingredientString = ingredientString.substring(ingredientString.indexOf(',') + 1);
+                        textBestBefore.setText(ingredientString.substring(0,ingredientString.indexOf(',')));
+                        ingredientString = ingredientString.substring(ingredientString.indexOf(',') + 1);
+                        textAmount.setText(ingredientString);
+
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> adapterView) {
+
+                    }
+                });
 
                 popup.showAtLocation(view, Gravity.CENTER, 0, 0);
 

@@ -45,6 +45,6 @@ public class Ingredient implements Serializable {
 
     @Override
     public String toString(){
-        return name;
+        return name + "," + bestBefore + "," + number;
     }
 }
