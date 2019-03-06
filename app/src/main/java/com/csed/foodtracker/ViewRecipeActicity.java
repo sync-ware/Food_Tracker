@@ -1,6 +1,8 @@
 package com.csed.foodtracker;
 
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
@@ -22,23 +24,46 @@ public class ViewRecipeActicity extends AppCompatActivity {
 
         recipe = (Recipe) getIntent().getSerializableExtra("recipe");
 
-        TextInputEditText recipeName = (TextInputEditText) findViewById(R.id.text_name);
+        final TextInputEditText recipeName = (TextInputEditText) findViewById(R.id.text_name);
         recipeName.setText(recipe.getName());
-        TextInputEditText recipeDesc = (TextInputEditText) findViewById(R.id.text_desc);
+        final TextInputEditText recipeDesc = (TextInputEditText) findViewById(R.id.text_desc);
         recipeDesc.setText(recipe.getDescription());
-        EditText recipePrepTime = (EditText) findViewById(R.id.text_preptime);
+        final EditText recipePrepTime = (EditText) findViewById(R.id.text_preptime);
         recipePrepTime.setText(recipe.getPrepTime());
-        EditText recipeCalories = (EditText) findViewById(R.id.text_calories);
+        final EditText recipeCalories = (EditText) findViewById(R.id.text_calories);
         recipeCalories.setText(Integer.toString(recipe.getCalories()));
-        TextInputEditText recipeUrl = (TextInputEditText) findViewById(R.id.text_url);
+        final TextInputEditText recipeUrl = (TextInputEditText) findViewById(R.id.text_url);
         recipeUrl.setText(recipe.getUrl());
 
-        FloatingActionButton fab = findViewById(R.id.fab);
+        recipeUrl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                CustomTabsIntent customTabsIntent = builder.build();
+                customTabsIntent.launchUrl(getApplicationContext(), Uri.parse(recipeUrl.getText().toString()));
+            }
+        });
+
+        final FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                if (!recipeName.isEnabled()) {
+                    fab.setImageResource(R.drawable.ic_tick);
+                    recipeName.setEnabled(true);
+                    recipeDesc.setEnabled(true);
+                    recipePrepTime.setEnabled(true);
+                    recipeCalories.setEnabled(true);
+                    recipeUrl.setEnabled(true);
+                }
+                else{
+                    fab.setImageResource(R.drawable.ic_edit);
+                    recipeName.setEnabled(false);
+                    recipeDesc.setEnabled(false);
+                    recipePrepTime.setEnabled(false);
+                    recipeCalories.setEnabled(false);
+                    recipeUrl.setEnabled(false);
+                }
             }
         });
     }
