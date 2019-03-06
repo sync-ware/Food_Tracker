@@ -12,7 +12,10 @@ import java.util.List;
 // Code adapted from https://guides.codepath.com/android/using-the-recyclerview
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder> {
-    public class ViewHolder extends RecyclerView.ViewHolder{
+
+    private static ClickListener clickListener;
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         public TextView nameTextView;
 
@@ -20,7 +23,22 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
             super(itemView);
 
             nameTextView = (TextView) itemView.findViewById(R.id.recipe_name);
+            itemView.setOnClickListener(this);
+
         }
+
+        @Override
+        public void onClick(View v) {
+            clickListener.onItemClick(getAdapterPosition(), v);
+        }
+    }
+
+    public void setOnItemClickListener(ClickListener clickListener) {
+        RecipeAdapter.clickListener = clickListener;
+    }
+
+    public interface ClickListener {
+        void onItemClick(int position, View v);
     }
 
     private List<Recipe> mRecipes;

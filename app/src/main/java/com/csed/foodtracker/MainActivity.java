@@ -87,6 +87,15 @@ public class MainActivity extends AppCompatActivity
         recipeListView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
                 DividerItemDecoration.VERTICAL));
 
+        recipeAdapter.setOnItemClickListener(new RecipeAdapter.ClickListener() {
+            @Override
+            public void onItemClick(int position, View v) {
+                Intent intent = new Intent(getApplicationContext(),ViewRecipeActicity.class);
+                intent.putExtra("recipe",recipeList.get(position));
+                startActivity(intent);
+            }
+        });
+
     }
 
     private void createRecipeList(){

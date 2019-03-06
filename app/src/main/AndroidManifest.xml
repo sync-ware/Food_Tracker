@@ -10,6 +10,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".ViewRecipeActicity"
+            android:label="@string/title_activity_view_recipe_acticity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
             android:name=".AddRecipeActivity"
             android:label="@string/title_activity_add_recipe"
             android:parentActivityName=".MainActivity"

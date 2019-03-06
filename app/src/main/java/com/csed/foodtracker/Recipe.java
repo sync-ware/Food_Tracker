@@ -1,9 +1,10 @@
 package com.csed.foodtracker;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class Recipe {
+public class Recipe implements Serializable {
 
     private int id;
     private String name;

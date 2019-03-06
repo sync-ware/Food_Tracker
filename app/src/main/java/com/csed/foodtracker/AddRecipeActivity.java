@@ -87,7 +87,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                 final TextInputEditText textName = (TextInputEditText) popupView.findViewById(R.id.text_name);
                 final EditText textAmount = (EditText) popupView.findViewById(R.id.text_number);
 
-                Button addButton = (Button) popupView.findViewById(R.id.button_confirm_ingredient);
+                Button confirmIngredientButton = (Button) popupView.findViewById(R.id.button_confirm_ingredient);
 
                 spInventory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
@@ -103,7 +103,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                     }
                 });
 
-                addButton.setOnClickListener(new View.OnClickListener() {
+                confirmIngredientButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         Ingredient ingredient = new Ingredient();
