@@ -75,18 +75,13 @@ public class AddRecipeActivity extends AppCompatActivity {
                 spInventory.setAdapter(adapter);
 
                 final TextInputEditText textName = (TextInputEditText) popupView.findViewById(R.id.text_name);
-                final EditText textBestBefore = (EditText) popupView.findViewById(R.id.text_bestbefore);
                 final EditText textAmount = (EditText) popupView.findViewById(R.id.text_number);
 
                 spInventory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                        String ingredientString = adapterView.getItemAtPosition(i).toString();
-                        textName.setText(ingredientString.substring(0,ingredientString.indexOf(',')));
-                        ingredientString = ingredientString.substring(ingredientString.indexOf(',') + 1);
-                        textBestBefore.setText(ingredientString.substring(0,ingredientString.indexOf(',')));
-                        ingredientString = ingredientString.substring(ingredientString.indexOf(',') + 1);
-                        textAmount.setText(ingredientString);
+                        textName.setText(adapterView.getItemAtPosition(i).toString());
+
 
                     }
 

@@ -32,21 +32,6 @@
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/input_ingredient_bestbefore"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:hint="Best Before">
-
-        <EditText
-            android:id="@+id/text_bestbefore"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:ems="10"
-            android:inputType="date" />
-    </android.support.design.widget.TextInputLayout>
-
-    <android.support.design.widget.TextInputLayout
         android:id="@+id/input_ingredient_num"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
