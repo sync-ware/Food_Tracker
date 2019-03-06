@@ -1,6 +1,8 @@
 package com.csed.foodtracker;
 
-public class Ingredient {
+import java.io.Serializable;
+
+public class Ingredient implements Serializable {
 
     private int id;
     private String name;
@@ -39,5 +41,10 @@ public class Ingredient {
 
     public int getNumber(){
         return number;
+    }
+
+    @Override
+    public String toString(){
+        return name;
     }
 }

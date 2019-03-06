@@ -58,7 +58,9 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(),AddRecipeActivity.class));
+                Intent intent = new Intent(getApplicationContext(),AddRecipeActivity.class);
+                intent.putExtra("ingredientList",ingredientList);
+                startActivity(intent);
 
             }
         });
@@ -140,7 +142,12 @@ public class MainActivity extends AppCompatActivity
                 ingredient.setBestBefore(bestBefore);
                 ingredient.setNumber(num);
 
+                ingredientList.add(ingredient);
+                ingredientTable.moveToNext();
+
             }
+
+            ingredientTable.close();
         }
     }
 

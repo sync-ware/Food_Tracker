@@ -10,10 +10,15 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
+
+import java.util.ArrayList;
 
 public class AddRecipeActivity extends AppCompatActivity {
 
@@ -23,6 +28,11 @@ public class AddRecipeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_recipe);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        final ArrayList<Ingredient> ingredientList = (ArrayList<Ingredient>)
+                getIntent().getSerializableExtra("ingredientList");
+
+
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -34,10 +44,15 @@ public class AddRecipeActivity extends AppCompatActivity {
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+
+
         Button addIngredientButton = (Button) findViewById(R.id.button_add_ingredient);
         addIngredientButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+
+
                 LayoutInflater inflater = (LayoutInflater) getApplicationContext().
                         getSystemService(LAYOUT_INFLATER_SERVICE);
                 View popupView = inflater.inflate(R.layout.popup_add_ingredient,null);
@@ -51,6 +66,14 @@ public class AddRecipeActivity extends AppCompatActivity {
                 if(Build.VERSION.SDK_INT>=21){
                     popup.setElevation(5.0f);
                 }
+
+                Spinner spInventory = (Spinner) findViewById(R.id.spinner_inventory);
+                ArrayAdapter<Ingredient> adapter = new ArrayAdapter<>(getApplicationContext(),
+                        android.R.layout.simple_spinner_item,ingredientList);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spInventory.setAdapter(adapter);
+
+
                 popup.showAtLocation(view, Gravity.CENTER, 0, 0);
 
 

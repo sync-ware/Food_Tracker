@@ -30,4 +30,10 @@
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@drawable/ic_tick" />
 
+    <include
+        layout="@layout/popup_add_ingredient"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible" />
+
 </android.support.design.widget.CoordinatorLayout>
