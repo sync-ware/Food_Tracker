@@ -11,7 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
 
-public class ViewRecipeActicity extends AppCompatActivity {
+public class ViewRecipeActivity extends AppCompatActivity {
 
     private Recipe recipe;
 

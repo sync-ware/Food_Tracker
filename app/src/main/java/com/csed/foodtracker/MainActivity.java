@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onItemClick(int position, View v) {
                 //Building a new intent to go from the current context to the ViewRecipe page
-                Intent intent = new Intent(getApplicationContext(),ViewRecipeActicity.class);
+                Intent intent = new Intent(getApplicationContext(), ViewRecipeActivity.class);
                 //Passing the recipe that was clicked on to the new page
                 intent.putExtra("recipe",recipeList.get(position));
                 //Beginning the View Recipe Activity
