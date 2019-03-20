@@ -1,11 +1,12 @@
 package com.csed.foodtracker;
 
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,14 +20,18 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class AddRecipeActivity extends AppCompatActivity {
+
+    protected SQLiteDatabase mDb;
+    protected DatabaseHelper mDBHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +59,22 @@ public class AddRecipeActivity extends AppCompatActivity {
                 DividerItemDecoration.VERTICAL));
 
         //TODO: Button for adding the recipe to the database
+        mDBHelper = new DatabaseHelper(this);
+
+        try {
+            mDBHelper.updateDataBase();
+        } catch (IOException mIOException) {
+            throw new Error("UnableToUpdateDatabase");
+        }
+
+        try {
+            mDb = mDBHelper.getWritableDatabase();
+
+        } catch (SQLException mSQLException) {
+            throw mSQLException;
+        }
+
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,11 +143,18 @@ public class AddRecipeActivity extends AppCompatActivity {
                 confirmIngredientButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        //TODO: Needs to update the list of ingredients straight after this, so the user doesn't need to go back to the home screen
                         //New Ingredient object
                         Ingredient ingredient = new Ingredient();
                         //Assign attributes
                         ingredient.setName(textName.getText().toString());
                         ingredient.setNumber(textAmount.getText().toString());
+                        //Today's date + 3 days
+                        SimpleDateFormat dtf = new SimpleDateFormat("yyyy-MM-dd");
+                        Date date = new Date();
+                        System.out.println(dtf.format(date));
+                        //TODO: Make sure it's reading from the database
+                        mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('"+textName.getText().toString()+"','"+dtf.format(date)+"','"+textAmount.getText().toString()+"')");
                         //Add to the list
                         recipeIngredientList.add(ingredient);
                         //Notifying the adapter means the list UI can be updated to show the new ingredient
