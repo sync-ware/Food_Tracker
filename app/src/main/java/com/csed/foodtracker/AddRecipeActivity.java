@@ -153,7 +153,6 @@ public class AddRecipeActivity extends AppCompatActivity {
                         SimpleDateFormat dtf = new SimpleDateFormat("yyyy-MM-dd");
                         Date date = new Date();
                         System.out.println(dtf.format(date));
-                        //TODO: Make sure it's reading from the database
                         mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('"+textName.getText().toString()+"','"+dtf.format(date)+"','"+textAmount.getText().toString()+"')");
                         //Add to the list
                         recipeIngredientList.add(ingredient);
