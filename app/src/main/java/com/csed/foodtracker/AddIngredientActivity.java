@@ -60,10 +60,6 @@ public class AddIngredientActivity extends AppCompatActivity {
         final TextInputEditText textName =  findViewById(R.id.input_name);
         final EditText textAmount =  findViewById(R.id.input_amount);
 
-        //Today's date + 3 days
-        final SimpleDateFormat dtf = new SimpleDateFormat("yyyy-MM-dd");
-        final Date date = new Date();
-        System.out.println(dtf.format(date));
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,7 +67,7 @@ public class AddIngredientActivity extends AppCompatActivity {
                 Snackbar.make(view, "Ingredient Added", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                 System.out.println(textName.getText().toString());
-                mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('"+textName.getText().toString()+"','"+dtf.format(date)+"','"+textAmount.getText().toString()+"')");
+                mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('"+textName.getText().toString()+"','0000-03-00','"+textAmount.getText().toString()+"')");
 //                mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('"+"hi"+"','"+dtf.format(date)+"','"+"2"+"')");
 
             }
