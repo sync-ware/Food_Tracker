@@ -47,6 +47,11 @@ public class MainActivity extends AppCompatActivity
 
         try {
             mDb = mDBHelper.getWritableDatabase();
+            // Bodged solution to add data for now.
+            /*mDb.execSQL("INSERT INTO Recipes(recipe_id,name,description,image,prep_time,calories,url) VALUES('2','Pasta and Pesto','1) Cook pasta; 2) Add pesto; 3) ??; 4) Profit.','pestoPasta.jpg','00:10','10','http://allrecipes.co.uk/consent/?dest=/recipe/1646/hey-pesto-pasta.aspx')");
+            mDb.execSQL("INSERT INTO Recipes(recipe_id,name,description,image,prep_time,calories,url) VALUES('3','Bacon Pasta','Cook pasta in pot and cook bacon in pan, then put together.','baconPasta.jpg','00:13','100','https://www.google.com/')");
+            mDb.execSQL("INSERT INTO Recipes(recipe_id,name,description,image,prep_time,calories,url) VALUES('4','Pizza','Cook pizza in pizza and cook pizza in pizza, then put pizza.','pizza.jpg','55:55','555','https://www.help.me/')");
+            mDb.execSQL("INSERT INTO Recipes(recipe_id,name,description,image,prep_time,calories,url) VALUES('5','Toast','Put bread in the toaster. Set the dial to prefered setting. Wait for it to pop, then add butter and chicken to taste.','toast.jpg','01:00','1','https://www.toast.chicken/')");*/
 
         } catch (SQLException mSQLException) {
             throw mSQLException;
@@ -90,7 +95,12 @@ public class MainActivity extends AppCompatActivity
         floatingActionButton2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 //TODO something when floating action menu second item clicked
-
+                //Intent to transfer from current page to new the add recipe activity
+                Intent intent = new Intent(getApplicationContext(),AddIngredientActivity.class);
+                //Put ingredient list into Intent
+//                intent.putExtra("ingredientList",ingredientList);
+                //Begin new activity
+                startActivity(intent);
             }
         });
 

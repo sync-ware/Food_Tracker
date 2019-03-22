@@ -30,8 +30,7 @@ import java.util.Date;
 
 public class AddRecipeActivity extends AppCompatActivity {
 
-    protected SQLiteDatabase mDb;
-    protected DatabaseHelper mDBHelper;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,21 +57,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         listIngredients.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
                 DividerItemDecoration.VERTICAL));
 
-        //TODO: Button for adding the recipe to the database
-        mDBHelper = new DatabaseHelper(this);
 
-        try {
-            mDBHelper.updateDataBase();
-        } catch (IOException mIOException) {
-            throw new Error("UnableToUpdateDatabase");
-        }
-
-        try {
-            mDb = mDBHelper.getWritableDatabase();
-
-        } catch (SQLException mSQLException) {
-            throw mSQLException;
-        }
 
 
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -113,8 +98,8 @@ public class AddRecipeActivity extends AppCompatActivity {
                 //Spinner object (Dropdown menu)
                 final Spinner spInventory = (Spinner) popupView.findViewById(R.id.spinner_inventory);
                 /*Giving the spinner a list of ingredients the user currently has.
-                * The user can click on one to quickly add an ingredient
-                */
+                 * The user can click on one to quickly add an ingredient
+                 */
                 ArrayAdapter<Ingredient> adapter = new ArrayAdapter<>(getApplicationContext(),
                         android.R.layout.simple_spinner_item,ingredientList);
                 //UI element for a drop down item
@@ -150,10 +135,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                         ingredient.setName(textName.getText().toString());
                         ingredient.setNumber(textAmount.getText().toString());
                         //Today's date + 3 days
-                        SimpleDateFormat dtf = new SimpleDateFormat("yyyy-MM-dd");
-                        Date date = new Date();
-                        System.out.println(dtf.format(date));
-                        mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('"+textName.getText().toString()+"','"+dtf.format(date)+"','"+textAmount.getText().toString()+"')");
+                        //TODO: Make sure it's reading from the database
                         //Add to the list
                         recipeIngredientList.add(ingredient);
                         //Notifying the adapter means the list UI can be updated to show the new ingredient
