@@ -64,7 +64,10 @@ public class ViewRecipeActivity extends AppCompatActivity {
         final TextInputEditText recipeUrl = (TextInputEditText) findViewById(R.id.text_url);
         recipeUrl.setText(recipe.getUrl());
 
-        Cursor cursor = mDb.rawQuery("SELECT Ingredients.name, RecipeIngredients.measurement FROM Ingredients INNER JOIN RecipeIngredients ON RecipeIngredients.ing_id = Ingredients.ing_id WHERE RecipeIngredients.recipe_id="+recipe.getId(),null);
+        Cursor cursor = mDb.rawQuery("SELECT Ingredients.name, RecipeIngredients.measurement" +
+                " FROM Ingredients INNER JOIN RecipeIngredients ON" +
+                " RecipeIngredients.ing_id = Ingredients.ing_id WHERE RecipeIngredients.recipe_id="+recipe.getId()
+                ,null);
         List<Ingredient> ingList = new ArrayList<>();
         //Start at first row
         cursor.moveToPosition(0);
@@ -80,9 +83,11 @@ public class ViewRecipeActivity extends AppCompatActivity {
         }
 
         RecyclerView recipeListView = findViewById(R.id.list_ingredients);
-        IngredientAdapter ingredientAdapter = new IngredientAdapter(ingList);
-        //Setting the list adapter
-        recipeListView.setAdapter(ingredientAdapter);
+        if (ingList != null) {
+            IngredientAdapter ingredientAdapter = new IngredientAdapter(ingList);
+            //Setting the list adapter
+            recipeListView.setAdapter(ingredientAdapter);
+        }
         //Generating a layout and dividers for the list
         recipeListView.setLayoutManager(new LinearLayoutManager(this));
         recipeListView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
