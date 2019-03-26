@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,14 +25,18 @@ import com.github.clans.fab.FloatingActionMenu;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private DatabaseHelper mDBHelper;
     private SQLiteDatabase mDb;
+    private SQLiteDatabase testDB;
     private ArrayList<Recipe> recipeList = new ArrayList<>();
     private ArrayList<Ingredient> ingredientList = new ArrayList<>();
+    private ArrayList<Ingredient> ownedIngredients = new ArrayList<>();
+    private ArrayList<ArrayList<Ingredient>> recipeIngredientList = new ArrayList<>(); // This will be used to
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +52,7 @@ public class MainActivity extends AppCompatActivity
 
         try {
             mDb = mDBHelper.getWritableDatabase();
-            // Bodged solution to add data for now.
-            /*mDb.execSQL("INSERT INTO Recipes(recipe_id,name,description,image,prep_time,calories,url) VALUES('2','Pasta and Pesto','1) Cook pasta; 2) Add pesto; 3) ??; 4) Profit.','pestoPasta.jpg','00:10','10','http://allrecipes.co.uk/consent/?dest=/recipe/1646/hey-pesto-pasta.aspx')");
-            mDb.execSQL("INSERT INTO Recipes(recipe_id,name,description,image,prep_time,calories,url) VALUES('3','Bacon Pasta','Cook pasta in pot and cook bacon in pan, then put together.','baconPasta.jpg','00:13','100','https://www.google.com/')");
-            mDb.execSQL("INSERT INTO Recipes(recipe_id,name,description,image,prep_time,calories,url) VALUES('4','Pizza','Cook pizza in pizza and cook pizza in pizza, then put pizza.','pizza.jpg','55:55','555','https://www.help.me/')");
-            mDb.execSQL("INSERT INTO Recipes(recipe_id,name,description,image,prep_time,calories,url) VALUES('5','Toast','Put bread in the toaster. Set the dial to prefered setting. Wait for it to pop, then add butter and chicken to taste.','toast.jpg','01:00','1','https://www.toast.chicken/')");*/
+            testDB = mDBHelper.getWritableDatabase();
 
         } catch (SQLException mSQLException) {
             throw mSQLException;
@@ -83,7 +84,6 @@ public class MainActivity extends AppCompatActivity
 
         floatingActionButton1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                //TODO something when floating action menu first item clicked
                 //Intent to transfer from current page to new the add recipe activity
                 Intent intent = new Intent(getApplicationContext(),AddRecipeActivity.class);
                 //Put ingredient list into Intent
@@ -94,7 +94,6 @@ public class MainActivity extends AppCompatActivity
         });
         floatingActionButton2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                //TODO something when floating action menu second item clicked
                 //Intent to transfer from current page to new the add recipe activity
                 Intent intent = new Intent(getApplicationContext(),AddIngredientActivity.class);
                 //Put ingredient list into Intent
@@ -126,6 +125,8 @@ public class MainActivity extends AppCompatActivity
             Cursor recipeTable = mDb.rawQuery("SELECT Recipes.recipe_id, Recipes.name, Recipes.description, Recipes.image," +
                     "Recipes.prep_time, Recipes.calories, Recipes.url FROM Recipes",null);
 
+
+            // Returns all. But we want to "order" by cookable
             //Start at first row
             recipeTable.moveToPosition(0);
             //Keep looping until you reach the last row
@@ -140,6 +141,25 @@ public class MainActivity extends AppCompatActivity
                 String prepTime = recipeTable.getString(recipeTable.getColumnIndex("prep_time"));
                 int calories = recipeTable.getInt(recipeTable.getColumnIndex("calories"));
                 String url = recipeTable.getString(recipeTable.getColumnIndex("url"));
+                
+                // Retrieve ingredients for each recipe
+                Cursor cursor = mDb.rawQuery("SELECT Ingredients.name, RecipeIngredients.measurement FROM Ingredients INNER JOIN RecipeIngredients ON RecipeIngredients.ing_id = Ingredients.ing_id WHERE RecipeIngredients.recipe_id="+id,null);
+                //Start at first row
+                cursor.moveToPosition(0);
+                ArrayList<Ingredient> recipeIngredients = new ArrayList<>();
+                //Keep looping until you reach the last row
+                while (cursor.getPosition() < cursor.getCount()){
+                    String ingName = cursor.getString(cursor.getColumnIndex("name"));
+                    String measurement = cursor.getString(cursor.getColumnIndex("measurement"));
+                    Ingredient a = new Ingredient();
+                    a.setName(ingName);
+                    a.setNumber(measurement);
+                    recipeIngredients.add(a);
+                    cursor.moveToNext();
+                }
+                cursor.close();
+                recipeIngredientList.add(recipeIngredients);
+
 
                 //Set recipe attributes with data from the database
                 recipe.setId(id);
@@ -168,7 +188,7 @@ public class MainActivity extends AppCompatActivity
     private void createIngredientList(){
         if (ingredientList.isEmpty()){
             Cursor ingredientTable = mDb.rawQuery("SELECT Ingredients.ing_id, Ingredients.name, Ingredients.best_before," +
-                    "Ingredients.num FROM Ingredients", null);
+                    "Ingredients.num FROM Ingredients ", null);
 
             ingredientTable.moveToPosition(0);
             while (ingredientTable.getPosition() < ingredientTable.getCount()){
@@ -186,7 +206,9 @@ public class MainActivity extends AppCompatActivity
 
                 ingredientList.add(ingredient);
                 ingredientTable.moveToNext();
-
+                if (!num.equals("0")) {
+                    ownedIngredients.add(ingredient); // Owned ingredients is used to check which recipes can be made
+                }
             }
 
             ingredientTable.close();
@@ -202,7 +224,33 @@ public class MainActivity extends AppCompatActivity
         /*An adapter is the lists contents, in this case we are having a list of Recipe objects
         * therefore a custom adapter class is made to be able to parse the Recipe objects into the list
         */
-        RecipeAdapter recipeAdapter = new RecipeAdapter(recipeList);
+        ArrayList<Recipe> newRecipeList = new ArrayList<>(); // This will be the ordered version
+
+        // This needs to filter out stuff which can't be cooked
+        for (int i = 0; i < recipeList.size(); i++) {
+            for (Ingredient recIng: recipeIngredientList.get(i)) {
+                for (int j = 0; j < ownedIngredients.size(); j++) {
+                    if (recIng == ownedIngredients.get(j)) {
+                        if (Integer.parseInt(ownedIngredients.get(j).getNumber()) >= Integer.parseInt(recIng.getNumber())) {
+                            // TODO:Make sure they have enough here
+                            System.out.println(recipeList.get(i).getName() + " " + recIng);
+                            recipeList.get(i).setCookable(true); // Signifies that it is cookable. Might be redundant later
+                            newRecipeList.add(recipeList.get(i));
+                            // Make text red
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        for (Recipe aaa: recipeList) { // Should put all non cookable ones on bottom.
+            //TODO: Get this working
+            if (!aaa.getCookable()) {
+                newRecipeList.add(aaa);
+            }
+        }
+        RecipeAdapter recipeAdapter = new RecipeAdapter(newRecipeList); // Ordered one instead
         //Setting the list adapter
         recipeListView.setAdapter(recipeAdapter);
         //Generating a layout and dividers for the list
