@@ -9,10 +9,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".AddIngredientActivity"></activity>
         <activity
             android:name=".ViewRecipeActivity"
             android:label="@string/title_activity_view_recipe_acticity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".AddRecipeActivity"
             android:label="@string/title_activity_add_recipe"

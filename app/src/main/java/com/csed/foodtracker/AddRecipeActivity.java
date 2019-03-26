@@ -1,11 +1,13 @@
 package com.csed.foodtracker;
 
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,17 +21,39 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class AddRecipeActivity extends AppCompatActivity {
 
+    DatabaseHelper mDBHelper;
+    SQLiteDatabase mDb;
+    Recipe recipe = new Recipe();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        mDBHelper = new DatabaseHelper(this);
+
+        try {
+            mDBHelper.updateDataBase();
+        } catch (IOException mIOException) {
+            throw new Error("UnableToUpdateDatabase");
+        }
+
+        try {
+            mDb = mDBHelper.getWritableDatabase();
+
+        } catch (SQLException mSQLException) {
+            throw mSQLException;
+        }
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_recipe);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -53,11 +77,33 @@ public class AddRecipeActivity extends AppCompatActivity {
         listIngredients.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
                 DividerItemDecoration.VERTICAL));
 
-        //TODO: Button for adding the recipe to the database
+        //Initialise UI elements for the popup
+        final TextInputEditText textName =  findViewById(R.id.text_name);
+        final EditText description =  findViewById(R.id.text_description); //If it doesn't recognise text_description don't worry, just reload IDE do not replace with text_desc
+        final EditText prepTime = findViewById(R.id.text_preptime);
+        final EditText calories = findViewById(R.id.text_calories);
+        final EditText url = findViewById(R.id.text_url);
+
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Insert recipe to the respective table
+                mDb.execSQL("Insert into 'Recipes'(name, description, image, prep_time, calories, url) VALUES('"+textName.getText().toString()+"','"
+                        +description.getText().toString()+"','"+textName.getText().toString()+".jpg','"+prepTime.getText().toString()+"','"
+                        +calories.getText().toString()+"','"+url.getText().toString()+"')");
+
+                recipe.setName(textName.getText().toString());
+
+                Cursor cursor = mDb.rawQuery("SELECT recipe_id FROM Recipes WHERE name='"+recipe.getName()+"'",null);
+                cursor.moveToPosition(0);
+                int count = cursor.getInt(cursor.getColumnIndex("recipe_id"));
+                recipe.setId(count);
+                // Add each item in listIngredietns to the recipeingredients table
+                for (Ingredient ing: recipe.getIngredients()) {
+                        mDb.execSQL("Insert into 'RecipeIngredients'(recipe_id, ing_id, measurement, detail) VALUES('"+recipe.getId()+"','"+ing.getId()+"','"+ing.getNumber()+"','detail')");
+                }
                 Snackbar.make(view, "Recipe Added", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
@@ -92,8 +138,8 @@ public class AddRecipeActivity extends AppCompatActivity {
                 //Spinner object (Dropdown menu)
                 final Spinner spInventory = (Spinner) popupView.findViewById(R.id.spinner_inventory);
                 /*Giving the spinner a list of ingredients the user currently has.
-                * The user can click on one to quickly add an ingredient
-                */
+                 * The user can click on one to quickly add an ingredient
+                 */
                 ArrayAdapter<Ingredient> adapter = new ArrayAdapter<>(getApplicationContext(),
                         android.R.layout.simple_spinner_item,ingredientList);
                 //UI element for a drop down item
@@ -122,11 +168,30 @@ public class AddRecipeActivity extends AppCompatActivity {
                 confirmIngredientButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        //TODO: Needs to update the list of ingredients straight after this, so the user doesn't need to go back to the home screen
                         //New Ingredient object
                         Ingredient ingredient = new Ingredient();
                         //Assign attributes
                         ingredient.setName(textName.getText().toString());
                         ingredient.setNumber(textAmount.getText().toString());
+                        //Today's date + 3 days
+                        boolean found = false;
+                        for (Ingredient ing : ingredientList) {
+                            if (ing.getName().equals(textName.getText().toString())) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('" + textName.getText().toString() + "','0000-03-00','0')");
+                        }
+                        Cursor cursor = mDb.rawQuery("SELECT ing_id FROM Ingredients WHERE name='"+ingredient.getName()+"'",null);
+                        cursor.moveToPosition(0);
+                        int count = cursor.getInt(cursor.getColumnIndex("ing_id"));
+                        ingredient.setId(count);
+                        System.out.println(count);
+                        recipe.addIngredient(ingredient);
+
                         //Add to the list
                         recipeIngredientList.add(ingredient);
                         //Notifying the adapter means the list UI can be updated to show the new ingredient

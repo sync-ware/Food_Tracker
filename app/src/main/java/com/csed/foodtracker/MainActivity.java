@@ -4,11 +4,14 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
+import android.view.MenuInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -18,17 +21,26 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private DatabaseHelper mDBHelper;
     private SQLiteDatabase mDb;
+    private SQLiteDatabase testDB;
     private ArrayList<Recipe> recipeList = new ArrayList<>();
     private ArrayList<Ingredient> ingredientList = new ArrayList<>();
+    private ArrayList<Ingredient> ownedIngredients = new ArrayList<>();
+    private ArrayList<ArrayList<Ingredient>> recipeIngredientList = new ArrayList<>(); // This will be used to
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +56,7 @@ public class MainActivity extends AppCompatActivity
 
         try {
             mDb = mDBHelper.getWritableDatabase();
+            testDB = mDBHelper.getWritableDatabase();
 
         } catch (SQLException mSQLException) {
             throw mSQLException;
@@ -64,18 +77,33 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        //Sends the list of ingredients user has to the add recipe page
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+
+
+        FloatingActionMenu materialDesignFAM;
+        FloatingActionButton floatingActionButton1, floatingActionButton2, floatingActionButton3;
+
+        materialDesignFAM = (FloatingActionMenu) findViewById(R.id.material_design_android_floating_action_menu);
+        floatingActionButton1 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item1);
+        floatingActionButton2 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item2);
+
+        floatingActionButton1.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
                 //Intent to transfer from current page to new the add recipe activity
                 Intent intent = new Intent(getApplicationContext(),AddRecipeActivity.class);
                 //Put ingredient list into Intent
                 intent.putExtra("ingredientList",ingredientList);
                 //Begin new activity
                 startActivity(intent);
-
+            }
+        });
+        floatingActionButton2.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                //Intent to transfer from current page to new the add recipe activity
+                Intent intent = new Intent(getApplicationContext(),AddIngredientActivity.class);
+                //Put ingredient list into Intent
+//                intent.putExtra("ingredientList",ingredientList);
+                //Begin new activity
+                startActivity(intent);
             }
         });
 
@@ -101,6 +129,8 @@ public class MainActivity extends AppCompatActivity
             Cursor recipeTable = mDb.rawQuery("SELECT Recipes.recipe_id, Recipes.name, Recipes.description, Recipes.image," +
                     "Recipes.prep_time, Recipes.calories, Recipes.url FROM Recipes",null);
 
+
+            // Returns all. But we want to "order" by cookable
             //Start at first row
             recipeTable.moveToPosition(0);
             //Keep looping until you reach the last row
@@ -115,6 +145,25 @@ public class MainActivity extends AppCompatActivity
                 String prepTime = recipeTable.getString(recipeTable.getColumnIndex("prep_time"));
                 int calories = recipeTable.getInt(recipeTable.getColumnIndex("calories"));
                 String url = recipeTable.getString(recipeTable.getColumnIndex("url"));
+                
+                // Retrieve ingredients for each recipe
+                Cursor cursor = mDb.rawQuery("SELECT Ingredients.name, RecipeIngredients.measurement FROM Ingredients INNER JOIN RecipeIngredients ON RecipeIngredients.ing_id = Ingredients.ing_id WHERE RecipeIngredients.recipe_id="+id,null);
+                //Start at first row
+                cursor.moveToPosition(0);
+                ArrayList<Ingredient> recipeIngredients = new ArrayList<>();
+                //Keep looping until you reach the last row
+                while (cursor.getPosition() < cursor.getCount()){
+                    String ingName = cursor.getString(cursor.getColumnIndex("name"));
+                    String measurement = cursor.getString(cursor.getColumnIndex("measurement"));
+                    Ingredient a = new Ingredient();
+                    a.setName(ingName);
+                    a.setNumber(measurement);
+                    recipeIngredients.add(a);
+                    cursor.moveToNext();
+                }
+                cursor.close();
+                recipeIngredientList.add(recipeIngredients);
+
 
                 //Set recipe attributes with data from the database
                 recipe.setId(id);
@@ -143,7 +192,7 @@ public class MainActivity extends AppCompatActivity
     private void createIngredientList(){
         if (ingredientList.isEmpty()){
             Cursor ingredientTable = mDb.rawQuery("SELECT Ingredients.ing_id, Ingredients.name, Ingredients.best_before," +
-                    "Ingredients.num FROM Ingredients", null);
+                    "Ingredients.num FROM Ingredients ", null);
 
             ingredientTable.moveToPosition(0);
             while (ingredientTable.getPosition() < ingredientTable.getCount()){
@@ -161,7 +210,9 @@ public class MainActivity extends AppCompatActivity
 
                 ingredientList.add(ingredient);
                 ingredientTable.moveToNext();
-
+                if (!num.equals("0")) {
+                    ownedIngredients.add(ingredient); // Owned ingredients is used to check which recipes can be made
+                }
             }
 
             ingredientTable.close();
@@ -177,7 +228,33 @@ public class MainActivity extends AppCompatActivity
         /*An adapter is the lists contents, in this case we are having a list of Recipe objects
         * therefore a custom adapter class is made to be able to parse the Recipe objects into the list
         */
-        RecipeAdapter recipeAdapter = new RecipeAdapter(recipeList);
+        ArrayList<Recipe> newRecipeList = new ArrayList<>(); // This will be the ordered version
+
+        // This needs to filter out stuff which can't be cooked
+        for (int i = 0; i < recipeList.size(); i++) {
+            for (Ingredient recIng: recipeIngredientList.get(i)) {
+                for (int j = 0; j < ownedIngredients.size(); j++) {
+                    if (recIng == ownedIngredients.get(j)) {
+                        if (Integer.parseInt(ownedIngredients.get(j).getNumber()) >= Integer.parseInt(recIng.getNumber())) {
+                            // TODO:Make sure they have enough here
+                            System.out.println(recipeList.get(i).getName() + " " + recIng);
+                            recipeList.get(i).setCookable(true); // Signifies that it is cookable. Might be redundant later
+                            newRecipeList.add(recipeList.get(i));
+                            // Make text red
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        for (Recipe aaa: recipeList) { // Should put all non cookable ones on bottom.
+            //TODO: Get this working
+            if (!aaa.getCookable()) {
+                newRecipeList.add(aaa);
+            }
+        }
+        RecipeAdapter recipeAdapter = new RecipeAdapter(newRecipeList); // Ordered one instead
         //Setting the list adapter
         recipeListView.setAdapter(recipeAdapter);
         //Generating a layout and dividers for the list
@@ -223,14 +300,61 @@ public class MainActivity extends AppCompatActivity
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                // User chose the "Settings" item, show the app settings UI...
+                return true;
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+            case R.id.action_filter:
+
+                //Show filter options
+                View view = findViewById(R.id.action_filter);
+                PopupMenu popup = new PopupMenu(this, view, Gravity.CENTER);
+                MenuInflater inflater = popup.getMenuInflater();
+                inflater.inflate(R.menu.filters, popup.getMenu());
+                popup.show();
+
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.filter_available:
+
+                                Toast.makeText(MainActivity.this, "Show Available", Toast.LENGTH_SHORT).show();
+                                item.setChecked(true);
+
+                                return true;
+
+                            case R.id.filter_unavailable:
+
+                                Toast.makeText(MainActivity.this, "Show Unavailable", Toast.LENGTH_SHORT).show();
+                                item.setChecked(true);
+
+                                return true;
+                            case R.id.filter_all:
+
+                                Toast.makeText(MainActivity.this, "Show All", Toast.LENGTH_SHORT).show();
+                                item.setChecked(true);
+
+                            default:
+                                // If we got here, the user's action was not recognized.
+                                // Invoke the superclass to handle it.
+                                return false;
+
+                        }
+
+
+                    }
+                });
+
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")

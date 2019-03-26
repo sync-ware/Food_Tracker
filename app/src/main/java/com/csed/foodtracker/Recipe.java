@@ -18,6 +18,7 @@ public class Recipe implements Serializable {
     private int calories;
     private String url;
     private ArrayList<Ingredient> ingredients;
+    private boolean cookable = false;
 
     public Recipe(){
         ingredients = new ArrayList<>();
@@ -81,6 +82,14 @@ public class Recipe implements Serializable {
 
     public ArrayList<Ingredient> getIngredients() {
         return ingredients;
+    }
+
+    public void setCookable(boolean cook) {
+        cookable = cook;
+    }
+
+    public boolean getCookable() {
+        return  cookable;
     }
 
 }
