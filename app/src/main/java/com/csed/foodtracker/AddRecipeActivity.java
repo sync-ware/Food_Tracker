@@ -79,7 +79,7 @@ public class AddRecipeActivity extends AppCompatActivity {
 
         //Initialise UI elements for the popup
         final TextInputEditText textName =  findViewById(R.id.text_name);
-        final EditText description =  findViewById(R.id.text_description);
+        final EditText description =  findViewById(R.id.text_description); //If it doesn't recognise text_description don't worry, just reload IDE do not replace with text_desc
         final EditText prepTime = findViewById(R.id.text_preptime);
         final EditText calories = findViewById(R.id.text_calories);
         final EditText url = findViewById(R.id.text_url);
