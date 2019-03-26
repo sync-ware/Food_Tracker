@@ -10,6 +10,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.MenuInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -304,7 +305,9 @@ public class MainActivity extends AppCompatActivity
                 return true;
 
             case R.id.action_filter:
-                PopupMenu popup = new PopupMenu(this, getCurrentFocus());
+
+                View view = findViewById(R.id.action_filter);
+                PopupMenu popup = new PopupMenu(this, view, Gravity.CENTER);
                 MenuInflater inflater = popup.getMenuInflater();
                 inflater.inflate(R.menu.filters, popup.getMenu());
                 popup.show();
