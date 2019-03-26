@@ -254,6 +254,13 @@ public class MainActivity extends AppCompatActivity
                 newRecipeList.add(aaa);
             }
         }
+
+        /*for (Recipe recipe : recipeList){
+            for (Ingredient ing : ingredientList){
+                if (recipe.getIngredients())
+            }
+        }*/
+
         RecipeAdapter recipeAdapter = new RecipeAdapter(newRecipeList); // Ordered one instead
         //Setting the list adapter
         recipeListView.setAdapter(recipeAdapter);
@@ -314,6 +321,7 @@ public class MainActivity extends AppCompatActivity
                 inflater.inflate(R.menu.filters, popup.getMenu());
                 popup.show();
 
+                //Filter click events, here the Recipe list will be sorted
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
@@ -335,6 +343,8 @@ public class MainActivity extends AppCompatActivity
 
                                 Toast.makeText(MainActivity.this, "Show All", Toast.LENGTH_SHORT).show();
                                 item.setChecked(true);
+
+                                return true;
 
                             default:
                                 // If we got here, the user's action was not recognized.
