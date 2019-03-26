@@ -21,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 
 import com.github.clans.fab.FloatingActionButton;
@@ -306,11 +307,46 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.action_filter:
 
+                //Show filter options
                 View view = findViewById(R.id.action_filter);
                 PopupMenu popup = new PopupMenu(this, view, Gravity.CENTER);
                 MenuInflater inflater = popup.getMenuInflater();
                 inflater.inflate(R.menu.filters, popup.getMenu());
                 popup.show();
+
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.filter_available:
+
+                                Toast.makeText(MainActivity.this, "Show Available", Toast.LENGTH_SHORT).show();
+                                item.setChecked(true);
+
+                                return true;
+
+                            case R.id.filter_unavailable:
+
+                                Toast.makeText(MainActivity.this, "Show Unavailable", Toast.LENGTH_SHORT).show();
+                                item.setChecked(true);
+
+                                return true;
+                            case R.id.filter_all:
+
+                                Toast.makeText(MainActivity.this, "Show All", Toast.LENGTH_SHORT).show();
+                                item.setChecked(true);
+
+                            default:
+                                // If we got here, the user's action was not recognized.
+                                // Invoke the superclass to handle it.
+                                return false;
+
+                        }
+
+
+                    }
+                });
+
                 return true;
 
             default:

@@ -6,7 +6,6 @@
         android:checkableBehavior="single" >
         <item
             android:id="@+id/filter_all"
-            android:checked="true"
             android:title="All" />
         <item
             android:id="@+id/filter_available"
