@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -44,7 +43,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
             throw mSQLException;
         }
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_recipe_acticity);
+        setContentView(R.layout.activity_view_recipe);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
