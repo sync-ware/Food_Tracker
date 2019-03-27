@@ -160,6 +160,9 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 mDb.execSQL("DELETE FROM Recipes WHERE recipe_id = " + recipe.getId() + ";");
                 mDb.execSQL("DELETE FROM RecipeIngredients WHERE recipe_id = " + recipe.getId() + ";");
 
+                //Go back to MainActivity
+                finish();
+
                 return true;
 
             default:
