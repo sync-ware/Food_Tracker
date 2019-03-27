@@ -42,6 +42,8 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<Ingredient> ownedIngredients = new ArrayList<>();
     private ArrayList<ArrayList<Ingredient>> recipeIngredientList = new ArrayList<>(); // This will be used to
 
+    private RecipeAdapter recipeAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -255,7 +257,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
-        RecipeAdapter recipeAdapter = new RecipeAdapter(newRecipeList); // Ordered one instead
+        recipeAdapter = new RecipeAdapter(newRecipeList); // Ordered one instead
         //Setting the list adapter
         recipeListView.setAdapter(recipeAdapter);
         //Generating a layout and dividers for the list
@@ -359,6 +361,19 @@ public class MainActivity extends AppCompatActivity
                 return super.onOptionsItemSelected(item);
 
         }
+    }
+
+    //Action when main activity is resumed
+    @Override
+    public void onResume(){
+        super.onResume();
+
+        //Reinitialise recipe list to reflect any changes
+        recipeList.clear();
+        createRecipeList();
+        initialiseListUI();
+
+
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
