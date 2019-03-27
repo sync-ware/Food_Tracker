@@ -122,6 +122,12 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     recipeUrl.setEnabled(true);
                 }
                 else{
+
+                    mDb.execSQL("UPDATE Recipes SET name = '" + recipeName.getText() + "', description = '"
+                    + recipeDesc.getText() + "', prep_time = '" + recipePrepTime.getText() + "', calories = "
+                    + recipeCalories.getText() + ", url = '" + recipeUrl.getText() + "' WHERE recipe_id = "
+                    + recipe.getId() + ";");
+
                     fab.setImageResource(R.drawable.ic_edit);
                     recipeName.setEnabled(false);
                     recipeDesc.setEnabled(false);

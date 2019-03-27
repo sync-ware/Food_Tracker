@@ -90,9 +90,13 @@ public class AddRecipeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Insert recipe to the respective table
-                mDb.execSQL("Insert into 'Recipes'(name, description, image, prep_time, calories, url) VALUES('"+textName.getText().toString()+"','"
-                        +description.getText().toString()+"','"+textName.getText().toString()+".jpg','"+prepTime.getText().toString()+"','"
-                        +calories.getText().toString()+"','"+url.getText().toString()+"')");
+                mDb.execSQL("Insert into 'Recipes'(name, description, image, prep_time, calories, url) VALUES('"
+                        +textName.getText().toString()+"','"
+                        +description.getText().toString()+"','"
+                        +textName.getText().toString()+".jpg','"
+                        +prepTime.getText().toString()+"','"
+                        +calories.getText().toString()+"','"
+                        +url.getText().toString()+"')");
 
                 recipe.setName(textName.getText().toString());
 
@@ -102,7 +106,10 @@ public class AddRecipeActivity extends AppCompatActivity {
                 recipe.setId(count);
                 // Add each item in listIngredietns to the recipeingredients table
                 for (Ingredient ing: recipe.getIngredients()) {
-                        mDb.execSQL("Insert into 'RecipeIngredients'(recipe_id, ing_id, measurement, detail) VALUES('"+recipe.getId()+"','"+ing.getId()+"','"+ing.getNumber()+"','detail')");
+                        mDb.execSQL("Insert into 'RecipeIngredients'(recipe_id, ing_id, measurement, detail)VALUES('"
+                                +recipe.getId()+"','"
+                                +ing.getId()+"','"
+                                +ing.getNumber()+"','detail')");
                 }
                 Snackbar.make(view, "Recipe Added", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
