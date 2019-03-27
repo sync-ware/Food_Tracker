@@ -255,12 +255,6 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
-        /*for (Recipe recipe : recipeList){
-            for (Ingredient ing : ingredientList){
-                if (recipe.getIngredients())
-            }
-        }*/
-
         RecipeAdapter recipeAdapter = new RecipeAdapter(newRecipeList); // Ordered one instead
         //Setting the list adapter
         recipeListView.setAdapter(recipeAdapter);
