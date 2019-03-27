@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -111,8 +112,11 @@ public class AddRecipeActivity extends AppCompatActivity {
                                 +ing.getId()+"','"
                                 +ing.getNumber()+"','detail')");
                 }
-                Snackbar.make(view, "Recipe Added", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
+                Toast.makeText(view.getContext(), "Recipe Added", Toast.LENGTH_SHORT).show();
+
+                //Go back to MainActivity
+                finish();
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

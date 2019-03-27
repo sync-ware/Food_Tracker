@@ -44,6 +44,10 @@ public class MainActivity extends AppCompatActivity
 
     private RecipeAdapter recipeAdapter;
 
+    private boolean filterAll;
+    private boolean filterAvailable;
+    private boolean filterUnavailable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -108,6 +112,12 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
             }
         });
+
+        filterAll = true;
+        filterAvailable = false;
+        filterUnavailable = false;
+
+
 
         //Generate a recipe list from the current contents of the database
         createRecipeList();
@@ -317,6 +327,16 @@ public class MainActivity extends AppCompatActivity
                 inflater.inflate(R.menu.filters, popup.getMenu());
                 popup.show();
 
+                if (filterAll){
+                    popup.getMenu().getItem(0).setChecked(true);
+                }
+                else if (filterAvailable){
+                    popup.getMenu().getItem(1).setChecked(true);
+                } else if (filterUnavailable) {
+
+                    popup.getMenu().getItem(2).setChecked(true);
+                }
+
                 //Filter click events, here the Recipe list will be sorted
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
@@ -326,6 +346,9 @@ public class MainActivity extends AppCompatActivity
 
                                 Toast.makeText(MainActivity.this, "Show Available", Toast.LENGTH_SHORT).show();
                                 item.setChecked(true);
+                                filterAvailable = true;
+                                filterAll = false;
+                                filterUnavailable = false;
 
                                 return true;
 
@@ -333,12 +356,18 @@ public class MainActivity extends AppCompatActivity
 
                                 Toast.makeText(MainActivity.this, "Show Unavailable", Toast.LENGTH_SHORT).show();
                                 item.setChecked(true);
+                                filterUnavailable = true;
+                                filterAll = false;
+                                filterAvailable = false;
 
                                 return true;
                             case R.id.filter_all:
 
                                 Toast.makeText(MainActivity.this, "Show All", Toast.LENGTH_SHORT).show();
                                 item.setChecked(true);
+                                filterAll = true;
+                                filterAvailable = false;
+                                filterUnavailable = false;
 
                                 return true;
 
