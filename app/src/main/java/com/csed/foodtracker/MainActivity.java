@@ -102,7 +102,8 @@ public class MainActivity extends AppCompatActivity
         floatingActionButton2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 //Intent to transfer from current page to new the add recipe activity
-                Intent intent = new Intent(getApplicationContext(),AddIngredientActivity.class);
+                Intent intent = new Intent(getApplicationContext(), OCRCamera.class);
+                                                                                                        //Intent intent = new Intent(getApplicationContext(),AddIngredientActivity.class);
                 //Put ingredient list into Intent
 //                intent.putExtra("ingredientList",ingredientList);
                 //Begin new activity
