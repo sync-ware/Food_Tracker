@@ -3,6 +3,7 @@ package com.csed.foodtracker;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.customtabs.CustomTabsIntent;
@@ -88,15 +89,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
         }
 
         RecyclerView recipeListView = findViewById(R.id.list_ingredients);
-        if (ingList != null) {
-            IngredientAdapter ingredientAdapter = new IngredientAdapter(ingList);
-            //Setting the list adapter
-            recipeListView.setAdapter(ingredientAdapter);
-        }
-        //Generating a layout and dividers for the list
-        recipeListView.setLayoutManager(new LinearLayoutManager(this));
-        recipeListView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
-                DividerItemDecoration.VERTICAL));
+
 
 
 
@@ -144,13 +137,14 @@ public class ViewRecipeActivity extends AppCompatActivity {
         });
 
         filterMode = (Integer) getIntent().getSerializableExtra("mode"); // Passed in variable filter mode
-
-        List<Integer> cookk = new ArrayList<>();
+        List<Ingredient> oldIngList = new ArrayList<>();
+        List<Ingredient> newIngList = new ArrayList<>();
+        List<String> cookk = new ArrayList<>();
         boolean cookable = false;
-        if (filterMode == 1) { // Cookable if they came from the available option, no need to compute twice
+        if (filterMode == 1) { // Cookable if they came from the available option
             cookable = true;
-        } else if (filterMode == 0) { // User came from view all, so we need to make sure it can be cooked.
-            Cursor cookableQuery = mDb.rawQuery("SELECT Recipes.recipe_id " +
+        } else { // User came from view all, so we need to make sure it can be cooked.
+            Cursor cookableQuery = mDb.rawQuery("SELECT Ingredients.name " +
                             "FROM Ingredients,RecipeIngredients " +
                             "INNER JOIN Recipes ON RecipeIngredients.ing_id = Ingredients.ing_id " +
                             "AND Recipes.recipe_id = RecipeIngredients.recipe_id " +
@@ -160,21 +154,36 @@ public class ViewRecipeActivity extends AppCompatActivity {
             cookableQuery.moveToPosition(0);
             while (cookableQuery.getPosition() < cookableQuery.getCount()) {
                 //Retrieve data from each column
-                int id = cookableQuery.getInt(cookableQuery.getColumnIndex("recipe_id"));
-                cookk.add(id);
+                String name = cookableQuery.getString(cookableQuery.getColumnIndex("name"));
+                cookk.add(name);
                 cookableQuery.moveToNext();
             }
             cookableQuery.close();
             if (cookk.size() == ingList.size()) {
                 cookable = true;
+            } else {
+                for (Ingredient ingredient: ingList) {
+                    boolean found = false;
+                    for (String nam: cookk) {
+                        if (ingredient.getName().equals(nam)) {
+                            found = true;
+                            oldIngList.add(ingredient);
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        // Need to make the ingredient appear red here
+                        newIngList.add(ingredient);
+                    }
+                }
             }
         }
         final FloatingActionButton cook = findViewById(R.id.cook);
 
+        /* Defines the recycler view(s) here, in order to populate it with ingredients the user doesn't have first,
+        Or in the case where it is cookable, so it ignores the second list entirely
+         */
         if (cookable) {
-            /*
-
-             */
             cook.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -186,7 +195,32 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     finish(); // Should return
                 }
             });
+            if (ingList != null) {
+                IngredientAdapter ingredientAdapter = new IngredientAdapter(ingList);
+                //Setting the list adapter
+                recipeListView.setAdapter(ingredientAdapter);
+            }
+            //Generating a layout and dividers for the list
+            recipeListView.setLayoutManager(new LinearLayoutManager(this));
+            recipeListView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
+                    DividerItemDecoration.VERTICAL));
         } else {
+            IngredientAdapter iangredientAdapter = new IngredientAdapter(newIngList);
+            //Setting the list adapter
+            recipeListView.setAdapter(iangredientAdapter);
+            //Generating a layout and dividers for the list
+            recipeListView.setLayoutManager(new LinearLayoutManager(this));
+            recipeListView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
+                    DividerItemDecoration.VERTICAL));
+            recipeListView.setBackgroundColor(Color.RED);
+            RecyclerView ownedIngredientsView = findViewById(R.id.cookable_list_ingredients);
+            IngredientAdapter ingredientAdapter = new IngredientAdapter(oldIngList);
+            //Setting the list adapter
+            ownedIngredientsView.setAdapter(ingredientAdapter);
+            //Generating a layout and dividers for the list
+            ownedIngredientsView.setLayoutManager(new LinearLayoutManager(this));
+            ownedIngredientsView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
+                    DividerItemDecoration.VERTICAL));
             cook.setRotation(45);
             cook.setImageResource(R.drawable.ic_add); // Need to find a different icon for this.
             cook.setOnClickListener(new View.OnClickListener() {
@@ -196,6 +230,10 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 }
             });
         }
+        /*
+        Moved adapter info here, because the list is now going to populate based on which ingredients they need first
+         */
+
     }
 
 
