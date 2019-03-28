@@ -34,6 +34,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private int mode;
     private DatabaseHelper mDBHelper;
     private SQLiteDatabase mDb;
     private SQLiteDatabase testDB;
@@ -157,7 +158,7 @@ public class MainActivity extends AppCompatActivity
                 String prepTime = recipeTable.getString(recipeTable.getColumnIndex("prep_time"));
                 int calories = recipeTable.getInt(recipeTable.getColumnIndex("calories"));
                 String url = recipeTable.getString(recipeTable.getColumnIndex("url"));
-                
+
                 // Retrieve ingredients for each recipe
                 Cursor cursor = mDb.rawQuery("SELECT Ingredients.name, RecipeIngredients.measurement FROM Ingredients INNER JOIN RecipeIngredients ON RecipeIngredients.ing_id = Ingredients.ing_id WHERE RecipeIngredients.recipe_id="+id,null);
                 //Start at first row
@@ -235,42 +236,76 @@ public class MainActivity extends AppCompatActivity
      * Generate List UI
      */
     private void initialiseListUI(){
-        //Initialise RecyclerView; This is basically the list itself
         RecyclerView recipeListView = findViewById(R.id.recipe_recyclerview);
-        /*An adapter is the lists contents, in this case we are having a list of Recipe objects
-        * therefore a custom adapter class is made to be able to parse the Recipe objects into the list
-        */
-        ArrayList<Recipe> newRecipeList = new ArrayList<>(); // This will be the ordered version
-
-        // This needs to filter out stuff which can't be cooked
-        for (int i = 0; i < recipeList.size(); i++) {
-            for (Ingredient recIng: recipeIngredientList.get(i)) {
-                for (int j = 0; j < ownedIngredients.size(); j++) {
-                    if (recIng == ownedIngredients.get(j)) {
-                        if (Integer.parseInt(ownedIngredients.get(j).getNumber()) >= Integer.parseInt(recIng.getNumber())) {
-                            // TODO:Make sure they have enough here
-                            System.out.println(recipeList.get(i).getName() + " " + recIng);
-                            recipeList.get(i).setCookable(true); // Signifies that it is cookable. Might be redundant later
-                            newRecipeList.add(recipeList.get(i));
-                            // Make text red
-                            break;
+        List<Recipe> newRecipeList = new ArrayList<>();
+        if (mode == 0) { // Mode 0 is all
+            recipeAdapter = new RecipeAdapter(recipeList); // Ordered one instead
+        } else {
+                try {
+                    for (int i = 0; i < 100; i++) {
+                        Cursor curse = mDb.rawQuery("SELECT Recipes.recipe_id FROM Ingredients,RecipeIngredients INNER JOIN Recipes ON RecipeIngredients.ing_id = Ingredients.ing_id AND Recipes.recipe_id = RecipeIngredients.recipe_id WHERE Recipes.recipe_id ='" + i + "' ORDER BY Recipes.recipe_id;", null);
+                        curse.moveToPosition(0);
+                        //Keep looping until you reach the last row
+                        List<Integer> allIng = new ArrayList<>();
+                        List<Integer> enoughIng = new ArrayList<>();
+                        while (curse.getPosition() < curse.getCount()) {
+                            //Retrieve data from each column
+                            int id = curse.getInt(curse.getColumnIndex("recipe_id"));
+                            allIng.add(id);
+                            curse.moveToNext();
+                        }
+                        curse.close();
+                        Cursor thing = mDb.rawQuery("SELECT Recipes.recipe_id FROM Ingredients,RecipeIngredients INNER JOIN Recipes ON RecipeIngredients.ing_id = Ingredients.ing_id AND Recipes.recipe_id = RecipeIngredients.recipe_id AND RecipeIngredients.measurement <= Ingredients.num WHERE Recipes.recipe_id ='" + i + "' ORDER BY Recipes.recipe_id;", null);
+                        thing.moveToPosition(0);
+                        while (thing.getPosition() < thing.getCount()) {
+                            //Retrieve data from each column
+                            int id = thing.getInt(thing.getColumnIndex("recipe_id"));
+                            enoughIng.add(id);
+                            thing.moveToNext();
+                        }
+                        thing.close();
+                        if (allIng.size() <= enoughIng.size() && mode == 1) {
+                            for (Recipe r : recipeList) {
+                                if (enoughIng.indexOf(r.getId()) != -1) { // mode 1 is cookable
+                                    newRecipeList.add(r);
+                                }
+                            }
+                        } else if (mode == 2) {
+                            int ingCount = 0;
+                            int actCount = 0;
+                            int curr = -1;
+                            for (int ing : allIng) {
+                                for (int ii : enoughIng) {
+                                    if (ii == ing) {
+                                        ingCount++;
+                                    }
+                                }
+                                if (ing == curr) {
+                                    actCount++;
+                                    System.out.println(actCount == ingCount);
+                                }
+                                if (ingCount == actCount) {
+                                    for (Recipe r : recipeList) {
+                                        if (r.getId() == ing) {
+                                            newRecipeList.add(r);
+                                        }
+                                    }
+                                }
+                                actCount = 0;
+                                ingCount = 0;
+                                curr = ing;
+                            }
                         }
                     }
+                } catch (IndexOutOfBoundsException e) {
+                    Toast.makeText(MainActivity.this, "Finished Loading", Toast.LENGTH_SHORT).show();
                 }
+                recipeAdapter = new RecipeAdapter(newRecipeList); // Ordered one instead
             }
-        }
 
-        for (Recipe aaa: recipeList) { // Should put all non cookable ones on bottom.
-            //TODO: Get this working
-            if (!aaa.getCookable()) {
-                newRecipeList.add(aaa);
-            }
-        }
-
-        recipeAdapter = new RecipeAdapter(newRecipeList); // Ordered one instead
         //Setting the list adapter
         recipeListView.setAdapter(recipeAdapter);
-        //Generating a layout and dividers for the list
+        //Generating a layout and dividers for th]e list
         recipeListView.setLayoutManager(new LinearLayoutManager(this));
         recipeListView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
                 DividerItemDecoration.VERTICAL));
@@ -278,7 +313,7 @@ public class MainActivity extends AppCompatActivity
         //Item select event
         recipeAdapter.setOnItemClickListener(new RecipeAdapter.ClickListener() {
             @Override
-            public void onItemClick(int position, View v) {
+            public void onItemClick(int position, View v) { // TODO: This doesn't work for other modes apart from show all
                 //Building a new intent to go from the current context to the ViewRecipe page
                 Intent intent = new Intent(getApplicationContext(), ViewRecipeActivity.class);
                 //Passing the recipe that was clicked on to the new page
@@ -349,6 +384,8 @@ public class MainActivity extends AppCompatActivity
                                 filterAvailable = true;
                                 filterAll = false;
                                 filterUnavailable = false;
+                                mode = 1;
+                                initialiseListUI();
 
                                 return true;
 
@@ -359,6 +396,8 @@ public class MainActivity extends AppCompatActivity
                                 filterUnavailable = true;
                                 filterAll = false;
                                 filterAvailable = false;
+                                mode = 2;
+                                initialiseListUI();
 
                                 return true;
                             case R.id.filter_all:
@@ -368,7 +407,8 @@ public class MainActivity extends AppCompatActivity
                                 filterAll = true;
                                 filterAvailable = false;
                                 filterUnavailable = false;
-
+                                mode = 0;
+                                initialiseListUI();
                                 return true;
 
                             default:
