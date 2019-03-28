@@ -30,4 +30,12 @@
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@drawable/ic_edit" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/cook"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_margin="@dimen/fab_margin"
+        app:srcCompat="@drawable/ic_tick" />
+
 </android.support.design.widget.CoordinatorLayout>

@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,8 +26,10 @@ import java.util.List;
 public class ViewRecipeActivity extends AppCompatActivity {
 
     private Recipe recipe;
+    private int filterMode;
     DatabaseHelper mDBHelper;
     SQLiteDatabase mDb;
+    List<Ingredient> ingList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,17 +73,17 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 " FROM Ingredients INNER JOIN RecipeIngredients ON" +
                 " RecipeIngredients.ing_id = Ingredients.ing_id WHERE RecipeIngredients.recipe_id="+recipe.getId()
                 ,null);
-        List<Ingredient> ingList = new ArrayList<>();
+        ingList = new ArrayList<>();
         //Start at first row
         cursor.moveToPosition(0);
         //Keep looping until you reach the last row
         while (cursor.getPosition() < cursor.getCount()){
             String name = cursor.getString(cursor.getColumnIndex("name"));
             String measurement = cursor.getString(cursor.getColumnIndex("measurement"));
-            Ingredient a = new Ingredient();
-            a.setName(name);
-            a.setNumber(measurement);
-            ingList.add(a);
+            Ingredient ingredient = new Ingredient();
+            ingredient.setName(name);
+            ingredient.setNumber(measurement);
+            ingList.add(ingredient);
             cursor.moveToNext();
         }
 
@@ -126,9 +129,9 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 else{
 
                     mDb.execSQL("UPDATE Recipes SET name = '" + recipeName.getText() + "', description = '"
-                    + recipeDesc.getText() + "', prep_time = '" + recipePrepTime.getText() + "', calories = "
-                    + recipeCalories.getText() + ", url = '" + recipeUrl.getText() + "' WHERE recipe_id = "
-                    + recipe.getId() + ";");
+                            + recipeDesc.getText() + "', prep_time = '" + recipePrepTime.getText() + "', calories = "
+                            + recipeCalories.getText() + ", url = '" + recipeUrl.getText() + "' WHERE recipe_id = "
+                            + recipe.getId() + ";");
 
                     fab.setImageResource(R.drawable.ic_edit);
                     recipeName.setEnabled(false);
@@ -139,6 +142,60 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 }
             }
         });
+
+        filterMode = (Integer) getIntent().getSerializableExtra("mode"); // Passed in variable filter mode
+
+        List<Integer> cookk = new ArrayList<>();
+        boolean cookable = false;
+        if (filterMode == 1) { // Cookable if they came from the available option, no need to compute twice
+            cookable = true;
+        } else if (filterMode == 0) { // User came from view all, so we need to make sure it can be cooked.
+            Cursor cookableQuery = mDb.rawQuery("SELECT Recipes.recipe_id " +
+                            "FROM Ingredients,RecipeIngredients " +
+                            "INNER JOIN Recipes ON RecipeIngredients.ing_id = Ingredients.ing_id " +
+                            "AND Recipes.recipe_id = RecipeIngredients.recipe_id " +
+                            "AND RecipeIngredients.measurement <= Ingredients.num " +
+                            "WHERE Recipes.recipe_id ='" + recipe.getId() + "' ORDER BY Recipes.recipe_id;",
+                    null);
+            cookableQuery.moveToPosition(0);
+            while (cookableQuery.getPosition() < cookableQuery.getCount()) {
+                //Retrieve data from each column
+                int id = cookableQuery.getInt(cookableQuery.getColumnIndex("recipe_id"));
+                cookk.add(id);
+                cookableQuery.moveToNext();
+            }
+            cookableQuery.close();
+            if (cookk.size() == ingList.size()) {
+                cookable = true;
+            }
+        }
+        final FloatingActionButton cook = findViewById(R.id.cook);
+
+        if (cookable) {
+            /*
+
+             */
+            cook.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    for (Ingredient ing : ingList) {
+                        // Remove from db for each ingredient.
+                        mDb.execSQL("UPDATE Ingredients SET num = num-'" + ing.getNumber() + "' WHERE name = '" + ing.getName() + "'");
+                    }
+                    Toast.makeText(ViewRecipeActivity.this, "Nice Meal! Ingredients Removed.", Toast.LENGTH_SHORT).show();
+                    finish(); // Should return
+                }
+            });
+        } else {
+            cook.setRotation(45);
+            cook.setImageResource(R.drawable.ic_add); // Need to find a different icon for this.
+            cook.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(ViewRecipeActivity.this, "You don't have enough food!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
 

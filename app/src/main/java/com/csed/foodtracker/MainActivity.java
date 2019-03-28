@@ -314,6 +314,7 @@ public class MainActivity extends AppCompatActivity
             public void onItemClick(int position, View v) {
                 //Building a new intent to go from the current context to the ViewRecipe page
                 Intent intent = new Intent(getApplicationContext(), ViewRecipeActivity.class);
+                intent.putExtra("mode",filterMode); // Added a new intent to pass the filter mode into the ViewRecipeActivity
                 //Passing the recipe that was clicked on to the new page
                 if (filterMode == 0) { // This is added to make sure the correct recipe appears
                     intent.putExtra("recipe",recipeList.get(position));
