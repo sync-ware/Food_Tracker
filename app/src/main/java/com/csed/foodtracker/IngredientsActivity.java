@@ -9,11 +9,14 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class IngredientsActivity extends AppCompatActivity
@@ -39,27 +42,32 @@ public class IngredientsActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        /*FloatingActionButton fab = findViewById(R.id.material_design_android_floating_action_menu);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent intent = new Intent(view.getContext(), AddIngredientActivity.class);
+                startActivity(intent);
+
             }
-        });*/
+        });
+
+        List<Ingredient> availableIngredients = new ArrayList<>();
 
 
         for (Ingredient ing : ingredientList){
-            if (Integer.parseInt(ing.getNumber()) <= 0){
-                ingredientList.remove(ing);
+            if (Integer.parseInt(ing.getNumber()) > 0){
+                availableIngredients.add(ing);
             }
         }
 
-        IngredientAdapter adapter = new IngredientAdapter(ingredientList);
+        IngredientAdapter adapter = new IngredientAdapter(availableIngredients);
         RecyclerView ingRecycler = (RecyclerView) findViewById(R.id.ingredients_recyclerview);
+        ingRecycler.setAdapter(adapter);
 
-
-
+        ingRecycler.setLayoutManager(new LinearLayoutManager(this));
+        ingRecycler.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
+                DividerItemDecoration.VERTICAL));
 
 
     }
