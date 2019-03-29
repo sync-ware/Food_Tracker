@@ -139,7 +139,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
         filterMode = (Integer) getIntent().getSerializableExtra("mode"); // Passed in variable filter mode
         List<Ingredient> oldIngList = new ArrayList<>();
         List<Ingredient> newIngList = new ArrayList<>();
-        List<String> cookk = new ArrayList<>();
+        List<String> cookableList = new ArrayList<>();
         boolean cookable = false;
         if (filterMode == 1) { // Cookable if they came from the available option
             cookable = true;
@@ -155,16 +155,16 @@ public class ViewRecipeActivity extends AppCompatActivity {
             while (cookableQuery.getPosition() < cookableQuery.getCount()) {
                 //Retrieve data from each column
                 String name = cookableQuery.getString(cookableQuery.getColumnIndex("name"));
-                cookk.add(name);
+                cookableList.add(name);
                 cookableQuery.moveToNext();
             }
             cookableQuery.close();
-            if (cookk.size() == ingList.size()) {
+            if (cookableList.size() == ingList.size()) {
                 cookable = true;
             } else {
                 for (Ingredient ingredient: ingList) {
                     boolean found = false;
-                    for (String nam: cookk) {
+                    for (String nam: cookableList) {
                         if (ingredient.getName().equals(nam)) {
                             found = true;
                             oldIngList.add(ingredient);
@@ -205,9 +205,9 @@ public class ViewRecipeActivity extends AppCompatActivity {
             recipeListView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
                     DividerItemDecoration.VERTICAL));
         } else {
-            IngredientAdapter iangredientAdapter = new IngredientAdapter(newIngList);
+            IngredientAdapter neededIngredientsAdapter = new IngredientAdapter(newIngList);
             //Setting the list adapter
-            recipeListView.setAdapter(iangredientAdapter);
+            recipeListView.setAdapter(neededIngredientsAdapter);
             //Generating a layout and dividers for the list
             recipeListView.setLayoutManager(new LinearLayoutManager(this));
             recipeListView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
@@ -230,9 +230,6 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 }
             });
         }
-        /*
-        Moved adapter info here, because the list is now going to populate based on which ingredients they need first
-         */
 
     }
 
