@@ -19,7 +19,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static String DB_NAME = "foodtracker_db.db";
     private static String DB_PATH = "";
     //Every time you change the database structure in anyway, you must increment the DB_VERSION
-    private static final int DB_VERSION = 3;
+    private static final int DB_VERSION = 4;
 
     private SQLiteDatabase mDataBase;
     private final Context mContext;

@@ -9,6 +9,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,11 +30,11 @@ public class IngredientsActivity extends AppCompatActivity
 
         ingredientList = (List<Ingredient>) getIntent().getSerializableExtra("ingredientList");
 
-        /*DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
-        toggle.syncState();*/
+        toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -46,6 +47,21 @@ public class IngredientsActivity extends AppCompatActivity
                         .setAction("Action", null).show();
             }
         });*/
+
+
+        for (Ingredient ing : ingredientList){
+            if (Integer.parseInt(ing.getNumber()) <= 0){
+                ingredientList.remove(ing);
+            }
+        }
+
+        IngredientAdapter adapter = new IngredientAdapter(ingredientList);
+        RecyclerView ingRecycler = (RecyclerView) findViewById(R.id.ingredients_recyclerview);
+
+
+
+
+
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
