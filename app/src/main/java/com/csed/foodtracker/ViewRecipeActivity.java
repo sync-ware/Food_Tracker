@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,6 +72,8 @@ public class ViewRecipeActivity extends AppCompatActivity {
         recipeCalories.setText(Integer.toString(recipe.getCalories()));
         final TextInputEditText recipeUrl = (TextInputEditText) findViewById(R.id.text_url);
         recipeUrl.setText(recipe.getUrl());
+        final Switch favouriteSwitch = (Switch) findViewById(R.id.switch2);
+
 
         Cursor cursor = mDb.rawQuery("SELECT Ingredients.name, RecipeIngredients.measurement" +
                 " FROM Ingredients INNER JOIN RecipeIngredients ON" +
@@ -122,10 +125,14 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     recipeUrl.setEnabled(true);
                 }
                 else{
-
+                    int mode = 0;
+                    boolean favourite = favouriteSwitch.isChecked();
+                    if (favourite) {
+                        mode = 1;
+                    }
                     mDb.execSQL("UPDATE Recipes SET name = '" + recipeName.getText() + "', description = '"
                             + recipeDesc.getText() + "', prep_time = '" + recipePrepTime.getText() + "', calories = "
-                            + recipeCalories.getText() + ", url = '" + recipeUrl.getText() + "' WHERE recipe_id = "
+                            + recipeCalories.getText() + ", url = '" + recipeUrl.getText() + "' favourite = '"+ mode + "' WHERE recipe_id = "
                             + recipe.getId() + ";");
 
                     fab.setImageResource(R.drawable.ic_edit);
