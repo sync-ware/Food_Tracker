@@ -222,6 +222,7 @@ public class MainActivity extends AppCompatActivity
         RecipeAdapter recipeAdapter;
         final List<Recipe> newRecipeList = new ArrayList<>(); // This is the list that ends up being used for recipeListView
         if (filterMode == 0) { // filterMode 0 is all option
+            recipeList.sort(new RecipeComparitor());
             recipeAdapter = new RecipeAdapter(recipeList); // Ordered one instead
         } else {
                 try {
