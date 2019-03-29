@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity
         if (recipeList.isEmpty()){
             //Select SQL Query that pulls data from database and stores it in cursor object
             Cursor recipeTable = mDb.rawQuery("SELECT Recipes.recipe_id, Recipes.name, Recipes.description, Recipes.image," +
-                    "Recipes.prep_time, Recipes.calories, Recipes.url FROM Recipes",null);
+                    "Recipes.prep_time, Recipes.calories, Recipes.url, Recipes.favourite FROM Recipes",null);
 
 
             // Returns all. But we want to "order" by cookable
@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity
                 String prepTime = recipeTable.getString(recipeTable.getColumnIndex("prep_time"));
                 int calories = recipeTable.getInt(recipeTable.getColumnIndex("calories"));
                 String url = recipeTable.getString(recipeTable.getColumnIndex("url"));
-
+                int favourite = recipeTable.getInt(recipeTable.getColumnIndex("favourite"));
 
 
 
@@ -166,6 +166,7 @@ public class MainActivity extends AppCompatActivity
                 recipe.setPrepTime(prepTime);
                 recipe.setCalories(calories);
                 recipe.setUrl(url);
+                recipe.setFavourite(favourite);
 
                 //Add recipe to the list
                 recipeList.add(recipe);

@@ -73,7 +73,12 @@ public class ViewRecipeActivity extends AppCompatActivity {
         final TextInputEditText recipeUrl = (TextInputEditText) findViewById(R.id.text_url);
         recipeUrl.setText(recipe.getUrl());
         final Switch favouriteSwitch = (Switch) findViewById(R.id.switch2);
-
+        favouriteSwitch.setEnabled(false);
+        if (recipe.getFavourite() == 1) {
+            favouriteSwitch.setChecked(true);
+        } else {
+            favouriteSwitch.setChecked(false);
+        }
 
         Cursor cursor = mDb.rawQuery("SELECT Ingredients.name, RecipeIngredients.measurement" +
                 " FROM Ingredients INNER JOIN RecipeIngredients ON" +
@@ -123,6 +128,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     recipePrepTime.setEnabled(true);
                     recipeCalories.setEnabled(true);
                     recipeUrl.setEnabled(true);
+                    favouriteSwitch.setEnabled(true);
                 }
                 else{
                     int mode = 0;
@@ -132,7 +138,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     }
                     mDb.execSQL("UPDATE Recipes SET name = '" + recipeName.getText() + "', description = '"
                             + recipeDesc.getText() + "', prep_time = '" + recipePrepTime.getText() + "', calories = "
-                            + recipeCalories.getText() + ", url = '" + recipeUrl.getText() + "' favourite = '"+ mode + "' WHERE recipe_id = "
+                            + recipeCalories.getText() + ", url = '" + recipeUrl.getText() + "', favourite = '"+ mode + "' WHERE recipe_id = "
                             + recipe.getId() + ";");
 
                     fab.setImageResource(R.drawable.ic_edit);
@@ -141,6 +147,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     recipePrepTime.setEnabled(false);
                     recipeCalories.setEnabled(false);
                     recipeUrl.setEnabled(false);
+                    favouriteSwitch.setEnabled(false);
                 }
             }
         });
