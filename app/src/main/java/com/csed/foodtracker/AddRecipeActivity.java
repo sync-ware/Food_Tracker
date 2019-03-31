@@ -179,7 +179,6 @@ public class AddRecipeActivity extends AppCompatActivity {
                 confirmIngredientButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        //TODO: Needs to update the list of ingredients straight after this, so the user doesn't need to go back to the home screen
                         //New Ingredient object
                         Ingredient ingredient = new Ingredient();
                         //Assign attributes

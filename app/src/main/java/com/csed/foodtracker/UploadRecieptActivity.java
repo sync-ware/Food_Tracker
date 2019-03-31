@@ -90,7 +90,7 @@ public class UploadRecieptActivity extends AppCompatActivity {
             imageText.append(textBlock.getValue());                   // return string
         }
 //        System.out.println(imageText);
-        return imageText.toString(); // TODO: Do something useful with this
+        return imageText.toString(); // TODO: Need to parse the data to get useful info from it. Presumably with a button after or something
     }
 
 
@@ -109,6 +109,13 @@ public class UploadRecieptActivity extends AppCompatActivity {
         return image;
     }
 
+    /**
+     * This is an override of onActivityResult, which performs different actions depending on if
+     * The camera or the gallery is used.
+     * @param requestCode The code..
+     * @param resultCode The code used to determine what to do next
+     * @param data The intent data returned from the initial call
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -122,27 +129,21 @@ public class UploadRecieptActivity extends AppCompatActivity {
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI);
                     startOcr(bitmap);
-//                    String path = saveImage(bitmap);
                     Toast.makeText(UploadRecieptActivity.this, "Image Saved!", Toast.LENGTH_SHORT).show();
-//                    view.setImageBitmap(bitmap);
 
                 } catch (IOException e) {
                     e.printStackTrace();
                     Toast.makeText(UploadRecieptActivity.this, "Failed!", Toast.LENGTH_SHORT).show();
                 }
             }
-
         } else if (requestCode == CAMERA) {
-//            Uri imageUri = data.getData();
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoURI);
-//            Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
+                // Attempts to retrieve the photo from the previously determined URI
                 startOcr(bitmap);
             } catch (IOException e) {
                 Toast.makeText(UploadRecieptActivity.this, "Error!", Toast.LENGTH_SHORT).show();
             }
-//            view.setImageBitmap(thumbnail);
-//            saveImage(thumbnail);
             Toast.makeText(UploadRecieptActivity.this, "Image Saved!", Toast.LENGTH_SHORT).show();
         }
     }
@@ -153,6 +154,8 @@ public class UploadRecieptActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload_reciept);
         tv = findViewById(R.id.ocr_text);
+        view = findViewById(R.id.imageView);
+
 
         Button useCameraButton = (Button) findViewById(R.id.use_camera_button);
         useCameraButton.setOnClickListener(new View.OnClickListener() {
@@ -169,14 +172,9 @@ public class UploadRecieptActivity extends AppCompatActivity {
                 Toast.makeText(UploadRecieptActivity.this, "Upload photo!", Toast.LENGTH_SHORT).show();
                 Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
                 startActivityForResult(galleryIntent, GALLERY);
-//                showPictureDialog();
             }
         });
-
-        view = (ImageView) findViewById(R.id.imageView);
-
 
     }
 

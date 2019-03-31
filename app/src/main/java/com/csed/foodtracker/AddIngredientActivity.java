@@ -66,6 +66,7 @@ public class AddIngredientActivity extends AppCompatActivity {
                 Snackbar.make(view, "Ingredient Added", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                 System.out.println(textName.getText().toString());
+                //TODO: Need to make sure ingredient doesn't exist before adding it to the database
                 mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('"+textName.getText().toString()+"','0000-03-00','"+textAmount.getText().toString()+"')");
 //                mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('"+"hi"+"','"+dtf.format(date)+"','"+"2"+"')");
 
