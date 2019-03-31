@@ -89,8 +89,8 @@ public class UploadRecieptActivity extends AppCompatActivity {
             TextBlock textBlock = textBlocks.get(textBlocks.keyAt(i));
             imageText.append(textBlock.getValue());                   // return string
         }
-        System.out.println(imageText);
-        return imageText.toString();
+//        System.out.println(imageText);
+        return imageText.toString(); // TODO: Do something useful with this
     }
 
 
@@ -172,15 +172,6 @@ public class UploadRecieptActivity extends AppCompatActivity {
 
                 startActivityForResult(galleryIntent, GALLERY);
 //                showPictureDialog();
-            }
-        });
-
-        Button readTextButton = (Button) findViewById(R.id.read_text_button);
-        readTextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(UploadRecieptActivity.this, "Read Text!", Toast.LENGTH_SHORT).show();
-                startOcr(null);
             }
         });
 
