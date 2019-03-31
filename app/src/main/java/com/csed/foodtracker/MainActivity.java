@@ -88,6 +88,8 @@ public class MainActivity extends AppCompatActivity
         materialDesignFAM = (FloatingActionMenu) findViewById(R.id.material_design_android_floating_action_menu);
         floatingActionButton1 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item1);
         floatingActionButton2 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item2);
+        floatingActionButton3 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item3);
+
 
         floatingActionButton1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -106,6 +108,12 @@ public class MainActivity extends AppCompatActivity
                 //Put ingredient list into Intent
 //                intent.putExtra("ingredientList",ingredientList);
                 //Begin new activity
+                startActivity(intent);
+            }
+        });
+        floatingActionButton3.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(),UploadRecieptActivity.class);
                 startActivity(intent);
             }
         });
