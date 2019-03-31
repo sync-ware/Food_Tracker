@@ -40,7 +40,6 @@ public class AddIngredientActivity extends AppCompatActivity {
 
 
 
-        //TODO: Button for adding the recipe to the database
         mDBHelper = new DatabaseHelper(this);
 
         try {

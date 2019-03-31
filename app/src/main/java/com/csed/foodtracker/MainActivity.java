@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+
     /**
      * Method that will go through each row in the database and generate new Recipe object which will
      * then be added to the list
@@ -211,6 +212,37 @@ public class MainActivity extends AppCompatActivity
                 ingredient.setNumber(num);
 
                 ingredientList.add(ingredient);
+                ingredientTable.moveToNext();
+            }
+
+            ingredientTable.close();
+        } else { // Duplicate code from checkIngredientList
+            Cursor ingredientTable = mDb.rawQuery("SELECT Ingredients.ing_id, Ingredients.name, Ingredients.best_before," +
+                    "Ingredients.num FROM Ingredients ", null);
+
+            ingredientTable.moveToPosition(0);
+            while (ingredientTable.getPosition() < ingredientTable.getCount()){
+                Ingredient ingredient = new Ingredient();
+
+                int id = ingredientTable.getInt(ingredientTable.getColumnIndex("ing_id"));
+                String name = ingredientTable.getString(ingredientTable.getColumnIndex("name"));
+                String bestBefore = ingredientTable.getString(ingredientTable.getColumnIndex("best_before"));
+                String num = ingredientTable.getString(ingredientTable.getColumnIndex("num"));
+
+                ingredient.setId(id);
+                ingredient.setName(name);
+                ingredient.setBestBefore(bestBefore);
+                ingredient.setNumber(num);
+                boolean found = false;
+                for (int i=0; i <ingredientList.size(); i++) {
+                    if (ingredientList.get(i).getName().equals(ingredient.getName())) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    ingredientList.add(ingredient);
+                }
                 ingredientTable.moveToNext();
             }
 
@@ -455,6 +487,7 @@ public class MainActivity extends AppCompatActivity
         recipeList.clear();
         createRecipeList();
         initialiseListUI();
+        createIngredientList();
 
 
     }
