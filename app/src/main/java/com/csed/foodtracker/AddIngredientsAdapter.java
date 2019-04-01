@@ -11,7 +11,6 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +31,9 @@ public class AddIngredientsAdapter extends ArrayAdapter<Ingredient> {
         ingredientList = list;
     }
 
-    @Override
-    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+
+//    @Override
+/*    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         listItem = convertView;
         if(listItem == null) {
             listItem = LayoutInflater.from(iContext).inflate(R.layout.list_items, parent, false);
@@ -45,9 +45,63 @@ public class AddIngredientsAdapter extends ArrayAdapter<Ingredient> {
         text.setText(currentIngredient.getName());
 
         EditText count = (EditText) listItem.findViewById(R.id.Item_price);
+        count.setText("1");
+        System.out.println(" K "+count.getText());
         currentIngredient.setNumber(count.getText().toString());
 
         return listItem;
+    }*/
+
+    class ListViewHolder {
+        TextView itemName;
+        EditText count;
+        int id;
+
+        ListViewHolder(View v) {
+            itemName = (TextView) v.findViewById(R.id.Item_name);
+            count = (EditText) v.findViewById(R.id.Item_price);
+        }
+    }
+
+    @Override
+    public View getView(int position, View view, ViewGroup parent) {
+        ListViewHolder viewHolder;
+        if (view == null) {
+            view = LayoutInflater.from(iContext).inflate(R.layout.list_items, parent, false);
+            viewHolder = new ListViewHolder(view);
+            viewHolder.itemName = (TextView) view.findViewById(R.id.Item_name);
+            viewHolder.count = (EditText) view.findViewById(R.id.Item_price);
+            view.setTag(viewHolder);
+        } else {
+            viewHolder = (ListViewHolder) view.getTag();
+// loadSavedValues();
+        }
+        viewHolder.itemName.setText(ingredientList.get(position).getName());
+        viewHolder.count.setId(position);
+        viewHolder.id = position;
+        if (ingredientList != null && ingredientList.get(position) != null) {
+            viewHolder.count.setText(ingredientList.get(position).getNumber());
+        } else {
+            viewHolder.count.setText("Hm");
+        }
+// Add listener for edit text
+        viewHolder.count
+                .setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                    @Override
+                    public void onFocusChange(View v, boolean hasFocus) {
+                        /*
+                         * When focus is lost save the entered value for
+                         * later use
+                         */
+                        if (!hasFocus) {
+                            int itemIndex = v.getId();
+                            String enteredPrice = ((EditText) v).getText()
+                                    .toString();
+                            ingredientList.get(itemIndex).setNumber(enteredPrice);
+                        }
+                    }
+                });
+        return view;
     }
 
     public void storeData(Context context) {
@@ -66,11 +120,8 @@ public class AddIngredientsAdapter extends ArrayAdapter<Ingredient> {
         }
         System.out.println(ingredientList.size());
         for (int i = 0; i <ingredientList.size(); i ++) {
-            Ingredient currentIngredient = ingredientList.get(i);
-            EditText count = (EditText) listItem.findViewById(R.id.Item_price);
-            currentIngredient.setNumber(count.getText().toString());
-            System.out.println(count.getText().toString());//TODO:Make this work
-            mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('"+ingredientList.get(i).getName()+"','0000-03-00','"+count.getText().toString()+"')");
+            //TODO: Doesn't reload until it restarts here. Add to universal ingredient list?
+            mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('"+ingredientList.get(i).getName()+"','0000-03-00','"+ingredientList.get(i).getNumber()+"')");
             //TODO: Need to make sure ingredient doesn't exist before adding it to the database
         }
         // SQL goes here

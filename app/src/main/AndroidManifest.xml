@@ -28,7 +28,8 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
-        <activity android:name=".UploadRecieptActivity"></activity>
+        <activity android:name=".UploadRecieptActivity" android:windowSoftInputMode="adjustPan" > </activity>
+
         <activity
             android:name=".IngredientsActivity"
             android:label="@string/title_activity_ingredients"

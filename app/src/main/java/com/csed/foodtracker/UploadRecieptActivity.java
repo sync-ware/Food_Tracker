@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.SparseArray;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -27,9 +28,11 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class UploadRecieptActivity extends AppCompatActivity {
 
+    ArrayList<Ingredient> ingredientList;
     String currentPhotoPath;
     File photoFile;
     private int GALLERY = 1, CAMERA = 2;
@@ -94,10 +97,27 @@ public class UploadRecieptActivity extends AppCompatActivity {
             TextBlock textBlock = textBlocks.get(textBlocks.keyAt(i));
             imageText.append(textBlock.getValue());                   // return string
         }
-//        System.out.println(imageText);
+        String string = imageText.toString();
+        String words[] = {"chicken","sausages","carrots","milk","celery","mince","ham"};
+        List<String> takenIngs = new ArrayList<>();
+        for (String word: string.split(" ")) {
+            for (String validWord: words) {
+                if (word.toLowerCase().equals(validWord) && takenIngs.indexOf(word.toLowerCase()) == -1) {
+                    takenIngs.add(word.toLowerCase());
+                    addItem(word);
+                    break;
+                }
+            }
+        }
         return imageText.toString(); // TODO: Need to parse the data to get useful info from it. Presumably with a button after or something
     }
 
+
+    private void addItem(String name) {
+        Ingredient i = new Ingredient();
+        i.setName(name);
+        ingredientList.add(i);
+    }
 
     private File createImageFile() throws IOException {
         // Create an image file name
@@ -154,11 +174,24 @@ public class UploadRecieptActivity extends AppCompatActivity {
     }
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload_reciept);
         tv = findViewById(R.id.ocr_text);
+        listView = (ListView) findViewById(R.id.ingredient_list);
+        ingredientList = new ArrayList<>();
+/*        Ingredient i = new Ingredient();
+        i.setName("Test1");
+        ingredientList.add(i);*/
+
+        ingredientsAdapter = new AddIngredientsAdapter(this,ingredientList);
+        listView.setAdapter(ingredientsAdapter);
+//        listView.
+/*        Ingredient ingg = new Ingredient();
+        ingg.setName("Penguin Yay 1");
+        ingredientList.add(ingg);*/
 //        view = findViewById(R.id.imageView);
 
 
@@ -184,23 +217,15 @@ public class UploadRecieptActivity extends AppCompatActivity {
         confirmChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(UploadRecieptActivity.this, "Upload photo!", Toast.LENGTH_SHORT).show();
+//                ingredientsAdapter.getView(1,this, );
                 ingredientsAdapter.storeData(context);
+//                runMethod();
+
             }
         });
-
-        listView = (ListView) findViewById(R.id.ingredient_list);
-        ArrayList<Ingredient> ingredientList = new ArrayList<>();
-        Ingredient i = new Ingredient();
-        i.setName("Test1");
-        ingredientList.add(i);
-
-        ingredientsAdapter = new AddIngredientsAdapter(this,ingredientList);
-        listView.setAdapter(ingredientsAdapter);
-        Ingredient ingg = new Ingredient();
-        ingg.setName("Penguin Yay 1");
-        ingredientList.add(ingg);
-
     }
 
+    private void runMethod() {
+        Toast.makeText(UploadRecieptActivity.this, ingredientList.get(0).getName(), Toast.LENGTH_SHORT).show();
+    }
 }
