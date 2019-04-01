@@ -18,6 +18,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -78,6 +79,10 @@ public class IngredientsActivity extends AppCompatActivity
 
 
         for (Ingredient ing : ingredientList){
+            if (ing.getNumber().equals("")) {
+                Toast.makeText(IngredientsActivity.this, ing.getName(), Toast.LENGTH_SHORT).show();
+                ing.setNumber("0");
+            }
             if (Integer.parseInt(ing.getNumber()) > 0){
                 availableIngredients.add(ing);
             }

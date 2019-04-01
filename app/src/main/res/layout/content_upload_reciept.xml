@@ -32,11 +32,19 @@
         android:layout_height="wrap_content"
         android:text="Add Photo" />
 
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ingredient_list">
+    </ListView>
 
-    <ImageView
+    <Button
+        android:id="@+id/confirm_changes_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/imageView"/>
+        android:text="Add Ingredients" />
+
+
 
 
 </LinearLayout>

@@ -1,6 +1,7 @@
 package com.csed.foodtracker;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,6 +15,7 @@ import android.util.SparseArray;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.vision.Frame;
@@ -23,6 +25,7 @@ import com.google.android.gms.vision.text.TextRecognizer;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class UploadRecieptActivity extends AppCompatActivity {
@@ -31,7 +34,9 @@ public class UploadRecieptActivity extends AppCompatActivity {
     File photoFile;
     private int GALLERY = 1, CAMERA = 2;
     Uri photoURI;
-    ImageView view;
+    private ListView listView;
+    private AddIngredientsAdapter ingredientsAdapter;
+//    ImageView view;
     private TextView tv;
 
     private void dispatchTakePictureIntent() {
@@ -65,7 +70,7 @@ public class UploadRecieptActivity extends AppCompatActivity {
             if (bitmap == null) {
                 bitmap = BitmapFactory.decodeFile(currentPhotoPath);
             }
-            view.setImageBitmap(bitmap);
+//            view.setImageBitmap(bitmap);
             String result =  extractText(bitmap);
             tv.setText(result);
 //            Toast.makeText(UploadRecieptActivity.this, "Finished Loading", Toast.LENGTH_SHORT).show();
@@ -154,7 +159,7 @@ public class UploadRecieptActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload_reciept);
         tv = findViewById(R.id.ocr_text);
-        view = findViewById(R.id.imageView);
+//        view = findViewById(R.id.imageView);
 
 
         Button useCameraButton = (Button) findViewById(R.id.use_camera_button);
@@ -169,12 +174,32 @@ public class UploadRecieptActivity extends AppCompatActivity {
         addPhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(UploadRecieptActivity.this, "Upload photo!", Toast.LENGTH_SHORT).show();
                 Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(galleryIntent, GALLERY);
             }
         });
+        final Context context = this;
+        Button confirmChangesButton = (Button) findViewById(R.id.confirm_changes_button);
+        confirmChangesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(UploadRecieptActivity.this, "Upload photo!", Toast.LENGTH_SHORT).show();
+                ingredientsAdapter.storeData(context);
+            }
+        });
+
+        listView = (ListView) findViewById(R.id.ingredient_list);
+        ArrayList<Ingredient> ingredientList = new ArrayList<>();
+        Ingredient i = new Ingredient();
+        i.setName("Test1");
+        ingredientList.add(i);
+
+        ingredientsAdapter = new AddIngredientsAdapter(this,ingredientList);
+        listView.setAdapter(ingredientsAdapter);
+        Ingredient ingg = new Ingredient();
+        ingg.setName("Penguin Yay 1");
+        ingredientList.add(ingg);
 
     }
 

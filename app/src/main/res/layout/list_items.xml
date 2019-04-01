@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal"
+    android:descendantFocusability="afterDescendants">
+    <TextView
+        android:id="@+id/Item_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:paddingTop="5dp"/>
+    <EditText
+        android:id="@+id/Item_price"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd = "true"
+        android:layout_gravity="end"
+        android:hint="Count"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:inputType="numberDecimal" />
+</RelativeLayout>
