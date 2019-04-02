@@ -1,6 +1,8 @@
 package com.csed.foodtracker;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -36,18 +38,14 @@ public class MainActivity extends AppCompatActivity
     private int filterMode; // Filter mode is
     private DatabaseHelper mDBHelper;
     private SQLiteDatabase mDb;
-    private SQLiteDatabase testDB;
     private ArrayList<Recipe> recipeList = new ArrayList<>();
     private ArrayList<Ingredient> ingredientList = new ArrayList<>();
+    String themeVal;
+    SharedPreferences themePrefs;
 
-
-    private boolean filterAll;
-    private boolean filterAvailable;
-    private boolean filterUnavailable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         //Initialise Database
         mDBHelper = new DatabaseHelper(this);
 
@@ -59,7 +57,6 @@ public class MainActivity extends AppCompatActivity
 
         try {
             mDb = mDBHelper.getWritableDatabase();
-            testDB = mDBHelper.getWritableDatabase();
 
         } catch (SQLException mSQLException) {
             throw mSQLException;
@@ -67,6 +64,15 @@ public class MainActivity extends AppCompatActivity
 
         super.onCreate(savedInstanceState);
 
+        themePrefs = getSharedPreferences("com.csed.foodtracker.theme", Context.MODE_PRIVATE);
+        themeVal = themePrefs.getString("theme", "1");
+/*
+        if (themeVal.equals("1")) {
+            setTheme(R.style.AppTheme);
+        } else {
+            setTheme(R.style.AppThemeDark);
+        }
+*/
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -119,12 +125,7 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
             }
         });
-
-        filterAll = true;
-        filterAvailable = false;
-        filterUnavailable = false;
-
-
+        filterMode = 0;
 
         //Generate a recipe list from the current contents of the database
         createRecipeList();
@@ -397,7 +398,15 @@ public class MainActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
-            case R.id.action_settings:
+            case R.id.action_theme:
+                SharedPreferences.Editor themeEditor = themePrefs.edit();
+                if (themeVal.equals("1")) {
+                    themeEditor.putString("theme", "0").apply();
+                } else {
+                    themeEditor.putString("theme", "1").apply();
+                }
+//                recreate();
+
                 // User chose the "Settings" item, show the app settings UI...
                 return true;
 
@@ -410,12 +419,12 @@ public class MainActivity extends AppCompatActivity
                 inflater.inflate(R.menu.filters, popup.getMenu());
                 popup.show();
 
-                if (filterAll){
+                if (filterMode == 0){
                     popup.getMenu().getItem(0).setChecked(true);
                 }
-                else if (filterAvailable){
+                else if (filterMode == 1){
                     popup.getMenu().getItem(1).setChecked(true);
-                } else if (filterUnavailable) {
+                } else if (filterMode == 2) {
 
                     popup.getMenu().getItem(2).setChecked(true);
                 }
@@ -429,9 +438,6 @@ public class MainActivity extends AppCompatActivity
 
                                 Toast.makeText(MainActivity.this, "Show Available", Toast.LENGTH_SHORT).show();
                                 item.setChecked(true);
-                                filterAvailable = true;
-                                filterAll = false;
-                                filterUnavailable = false;
                                 filterMode = 1;
                                 initialiseListUI();
 
@@ -441,9 +447,6 @@ public class MainActivity extends AppCompatActivity
 
                                 Toast.makeText(MainActivity.this, "Show Unavailable", Toast.LENGTH_SHORT).show();
                                 item.setChecked(true);
-                                filterUnavailable = true;
-                                filterAll = false;
-                                filterAvailable = false;
                                 filterMode = 2;
                                 initialiseListUI();
 
@@ -452,9 +455,6 @@ public class MainActivity extends AppCompatActivity
 
                                 Toast.makeText(MainActivity.this, "Show All", Toast.LENGTH_SHORT).show();
                                 item.setChecked(true);
-                                filterAll = true;
-                                filterAvailable = false;
-                                filterUnavailable = false;
                                 filterMode = 0;
                                 initialiseListUI();
                                 return true;
@@ -465,11 +465,8 @@ public class MainActivity extends AppCompatActivity
                                 return false;
 
                         }
-
-
                     }
                 });
-
                 return true;
 
             default:
@@ -484,14 +481,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onResume(){
         super.onResume();
-
         //Reinitialise recipe list to reflect any changes
         recipeList.clear();
         createRecipeList();
         initialiseListUI();
         createIngredientList();
-
-
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -499,15 +493,12 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
         switch (id) {
-
             case R.id.nav_ingredients:
                 Intent intent = new Intent(this, IngredientsActivity.class);
                 intent.putExtra("ingredientList", ingredientList);
                 startActivity(intent);
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;

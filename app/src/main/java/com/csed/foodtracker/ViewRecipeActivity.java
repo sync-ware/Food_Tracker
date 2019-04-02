@@ -1,5 +1,6 @@
 package com.csed.foodtracker;
 
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -52,6 +53,15 @@ public class ViewRecipeActivity extends AppCompatActivity {
             throw mSQLException;
         }
         super.onCreate(savedInstanceState);
+/*        String themeVal;
+        SharedPreferences themePrefs;
+        themePrefs = getSharedPreferences("com.csed.foodtracker.theme", 0);
+        themeVal = themePrefs.getString("theme", "1");
+        if (themeVal == "1") {
+            setTheme(R.style.AppTheme);
+        } else {
+            setTheme(R.style.AppThemeDark);
+        }*/
         setContentView(R.layout.activity_view_recipe);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

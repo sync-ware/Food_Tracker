@@ -1,5 +1,6 @@
 package com.csed.foodtracker;
 
+import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
@@ -36,6 +37,16 @@ public class AddIngredientActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+/*        String themeVal;
+        SharedPreferences themePrefs;
+        themePrefs = getSharedPreferences("com.csed.foodtracker.theme", 0);
+        themeVal = themePrefs.getString("theme", "1");
+        if (themeVal == "1") {
+            setTheme(R.style.AppTheme);
+        } else {
+            setTheme(R.style.AppThemeDark);
+        }*/
+
         setContentView(R.layout.activity_add_ingredient);
 
 
@@ -72,7 +83,7 @@ public class AddIngredientActivity extends AppCompatActivity {
 
             }
         });
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
 

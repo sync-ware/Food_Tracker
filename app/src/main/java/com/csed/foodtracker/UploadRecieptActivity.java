@@ -3,6 +3,7 @@ package com.csed.foodtracker;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -178,7 +179,17 @@ public class UploadRecieptActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+/*        String themeVal;
+        SharedPreferences themePrefs;
+        themePrefs = getSharedPreferences("com.csed.foodtracker.theme", 0);
+        themeVal = themePrefs.getString("theme", "1");
+        if (themeVal == "1") {
+            setTheme(R.style.AppTheme);
+        } else {
+            setTheme(R.style.AppThemeDark);
+        }*/
         setContentView(R.layout.activity_upload_reciept);
+
         tv = findViewById(R.id.ocr_text);
         listView = (ListView) findViewById(R.id.ingredient_list);
         ingredientList = new ArrayList<>();

@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +20,6 @@ public class AddIngredientsAdapter extends ArrayAdapter<Ingredient> {
     private List<Ingredient> ingredientList;
     DatabaseHelper mDBHelper;
     SQLiteDatabase mDb;
-    View listItem;
 
 
 
@@ -31,26 +29,6 @@ public class AddIngredientsAdapter extends ArrayAdapter<Ingredient> {
         ingredientList = list;
     }
 
-
-//    @Override
-/*    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        listItem = convertView;
-        if(listItem == null) {
-            listItem = LayoutInflater.from(iContext).inflate(R.layout.list_items, parent, false);
-        }
-
-        Ingredient currentIngredient = ingredientList.get(position);
-
-        TextView text = (TextView) listItem.findViewById(R.id.Item_name);
-        text.setText(currentIngredient.getName());
-
-        EditText count = (EditText) listItem.findViewById(R.id.Item_price);
-        count.setText("1");
-        System.out.println(" K "+count.getText());
-        currentIngredient.setNumber(count.getText().toString());
-
-        return listItem;
-    }*/
 
     class ListViewHolder {
         TextView itemName;
