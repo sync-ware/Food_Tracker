@@ -9,9 +9,9 @@
             android:title="All" />
         <item
             android:id="@+id/filter_available"
-            android:title="Available" />
+            android:title="Cookable" />
         <item
             android:id="@+id/filter_unavailable"
-            android:title="Unavailable" />
+            android:title="Uncookable" />
     </group>
 </menu>

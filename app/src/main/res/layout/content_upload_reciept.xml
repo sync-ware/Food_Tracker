@@ -13,24 +13,21 @@
 
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:id = "@+id/ocr_text"
-        android:text="adasdsadsds" />
-
+        android:id="@+id/textView" />
 
     <Button
         android:id="@+id/use_camera_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Use Camera" />
+        android:text="@string/button_use_camera" />
 
     <Button
         android:id="@+id/add_photo_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add Photo" />
+        android:text="@string/button_add_photo" />
 
     <ListView
         android:layout_width="wrap_content"
@@ -42,7 +39,7 @@
         android:id="@+id/confirm_changes_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add Ingredients" />
+        android:text="@string/button_add_ingredients" />
 
 
 

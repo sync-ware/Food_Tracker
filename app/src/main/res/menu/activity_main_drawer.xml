@@ -1,16 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_recipes"
-            android:title="Recipes" />
+            android:title="Recipes"
+            android:icon="@drawable/ic_recipes"/>
         <item
             android:id="@+id/nav_ingredients"
-            android:title="Ingredients" />
+            android:title="Ingredients"
+            android:icon="@drawable/ic_ingredients"/>
+        <item
+            android:id="@+id/nav_addRecipe"
+            android:title="Add Recipe"
+            android:icon="@drawable/ic_add_meal"/>
+        <item
+            android:id="@+id/nav_addIngredient"
+            android:title="Add Ingredient (Manual)"
+            android:icon="@drawable/ic_add_ingredient"/>
+        <item
+            android:id="@+id/nav_uploadPhoto"
+            android:title="Add Ingredient (Photo)"
+            android:icon="@drawable/ic_add_a_photo_black_24dp"/>
     </group>
 
 </menu>

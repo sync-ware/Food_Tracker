@@ -39,8 +39,8 @@
             fab:menu_animationDelayPerItem="55"
             fab:menu_backgroundColor="@android:color/transparent"
             fab:menu_buttonSpacing="0dp"
-            fab:menu_colorNormal="#da3c2f"
-            fab:menu_colorPressed="#dc4b3f"
+            fab:menu_colorNormal="#D81A60"
+            fab:menu_colorPressed="#D81A60"
             fab:menu_colorRipple="#99d4d4d4"
             fab:menu_fab_label="Cancel"
             fab:menu_fab_size="normal"
@@ -72,21 +72,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 fab:fab_label="Add Recipe"
-                fab:fab_size="mini" />
+                fab:fab_size="mini"
+                android:src="@drawable/ic_add_meal"/>
 
             <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/material_design_floating_action_menu_item2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 fab:fab_label="Add Ingredient"
-                fab:fab_size="mini" />
+                fab:fab_size="mini"
+                android:src="@drawable/ic_add_ingredient" />
 
             <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/material_design_floating_action_menu_item3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 fab:fab_label="Add Ingredients from Photo"
-                fab:fab_size="mini" />
+                fab:fab_size="mini"
+                android:src="@drawable/ic_add_a_photo_black_24dp" />
 
         </com.github.clans.fab.FloatingActionMenu>
     </RelativeLayout>

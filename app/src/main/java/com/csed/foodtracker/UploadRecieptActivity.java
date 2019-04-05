@@ -1,22 +1,20 @@
 package com.csed.foodtracker;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,10 +36,8 @@ public class UploadRecieptActivity extends AppCompatActivity {
     File photoFile;
     private int GALLERY = 1, CAMERA = 2;
     Uri photoURI;
-    private ListView listView;
     private AddIngredientsAdapter ingredientsAdapter;
 //    ImageView view;
-    private TextView tv;
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -63,27 +59,10 @@ public class UploadRecieptActivity extends AppCompatActivity {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, CAMERA);
             }
-
-//            startOcr(photoURI);
         }
     }
 
-    @SuppressLint("ShowToast")
-    private void startOcr(Bitmap bitmap) {
-        try{
-            if (bitmap == null) {
-                bitmap = BitmapFactory.decodeFile(currentPhotoPath);
-            }
-//            view.setImageBitmap(bitmap);
-            String result =  extractText(bitmap);
-            tv.setText(result);
-//            Toast.makeText(UploadRecieptActivity.this, "Finished Loading", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Toast.makeText(this,"error startOCR",Toast.LENGTH_SHORT);
-        }
-    }
-
-    private String extractText(Bitmap bitmap){
+    private void extractText(Bitmap bitmap){
         TextRecognizer textRecognizer = new TextRecognizer.Builder(getApplicationContext()).build();
         Frame imageFrame = new Frame.Builder()
                 .setBitmap(bitmap)                 // your image bitmap
@@ -98,7 +77,10 @@ public class UploadRecieptActivity extends AppCompatActivity {
             TextBlock textBlock = textBlocks.get(textBlocks.keyAt(i));
             imageText.append(textBlock.getValue());                   // return string
         }
+        TextView tv = (TextView) findViewById(R.id.textView);
         String string = imageText.toString();
+        tv.setText(string);
+        tv.setVisibility(View.GONE);
         String words[] = {"chicken","sausages","carrots","milk","celery","mince","ham"};
         List<String> takenIngs = new ArrayList<>();
         for (String word: string.split(" ")) {
@@ -110,9 +92,8 @@ public class UploadRecieptActivity extends AppCompatActivity {
                 }
             }
         }
-        return imageText.toString(); // TODO: Need to parse the data to get useful info from it. Presumably with a button after or something
+//                tv.setText("");
     }
-
 
     private void addItem(String name) {
         Ingredient i = new Ingredient();
@@ -154,7 +135,7 @@ public class UploadRecieptActivity extends AppCompatActivity {
                 Uri contentURI = data.getData();
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI);
-                    startOcr(bitmap);
+                    extractText(bitmap);
                     Toast.makeText(UploadRecieptActivity.this, "Image Saved!", Toast.LENGTH_SHORT).show();
 
                 } catch (IOException e) {
@@ -166,7 +147,7 @@ public class UploadRecieptActivity extends AppCompatActivity {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoURI);
                 // Attempts to retrieve the photo from the previously determined URI
-                startOcr(bitmap);
+                extractText(bitmap);
             } catch (IOException e) {
                 Toast.makeText(UploadRecieptActivity.this, "Error!", Toast.LENGTH_SHORT).show();
             }
@@ -189,9 +170,11 @@ public class UploadRecieptActivity extends AppCompatActivity {
             setTheme(R.style.AppThemeDark);
         }*/
         setContentView(R.layout.activity_upload_reciept);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        tv = findViewById(R.id.ocr_text);
-        listView = (ListView) findViewById(R.id.ingredient_list);
+
+        ListView listView = findViewById(R.id.ingredient_list);
         ingredientList = new ArrayList<>();
 /*        Ingredient i = new Ingredient();
         i.setName("Test1");
@@ -211,6 +194,7 @@ public class UploadRecieptActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 dispatchTakePictureIntent();
+                Toast.makeText(UploadRecieptActivity.this, "Photo Uploaded", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -221,6 +205,7 @@ public class UploadRecieptActivity extends AppCompatActivity {
                 Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(galleryIntent, GALLERY);
+                Toast.makeText(UploadRecieptActivity.this, "Photo Uploaded", Toast.LENGTH_SHORT).show();
             }
         });
         final Context context = this;
@@ -230,13 +215,29 @@ public class UploadRecieptActivity extends AppCompatActivity {
             public void onClick(View view) {
 //                ingredientsAdapter.getView(1,this, );
                 ingredientsAdapter.storeData(context);
+                Toast.makeText(UploadRecieptActivity.this, "Saved Changes", Toast.LENGTH_SHORT).show();
+                finish();
 //                runMethod();
 
             }
         });
     }
 
-    private void runMethod() {
-        Toast.makeText(UploadRecieptActivity.this, ingredientList.get(0).getName(), Toast.LENGTH_SHORT).show();
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // handle arrow click here
+        if (item.getItemId() == android.R.id.home) {
+            finish(); // close this activity and return to preview activity (if there is any)
+        }
+
+        return super.onOptionsItemSelected(item);
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
 }
+

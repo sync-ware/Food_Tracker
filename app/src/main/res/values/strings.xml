@@ -3,10 +3,18 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Food Tracker</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_subtitle">Recipes and Ingredients all in One Place!</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_theme">Change Theme</string>
+    <string name="reset_db">Reset Database</string>
+    <string name="filter">Filter</string>
     <string name="title_activity_add_recipe">Add Recipe</string>
-    <string name="title_activity_view_recipe_acticity">View Recipe</string>
-    <string name="title_activity_ingredients">IngredientsActivity</string>
+    <string name="title_activity_view_recipe_acticity">Recipe View</string>
+    <string name="title_activity_ingredients">Ingredients</string>
+    <string name="button_use_camera">Use Camera</string>
+    <string name="button_add_photo">Add Photo</string>
+    <string name="button_add_ingredients">Add Ingredients</string>
+
+
+
 </resources>

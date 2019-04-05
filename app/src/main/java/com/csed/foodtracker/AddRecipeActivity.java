@@ -27,9 +27,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class AddRecipeActivity extends AppCompatActivity {
 

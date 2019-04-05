@@ -6,6 +6,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.FloatingActionButton;
@@ -14,12 +15,21 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.PopupWindow;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,6 +45,8 @@ public class ViewRecipeActivity extends AppCompatActivity {
     DatabaseHelper mDBHelper;
     SQLiteDatabase mDb;
     List<Ingredient> ingList;
+    IngredientAdapter ingredientAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,12 +95,24 @@ public class ViewRecipeActivity extends AppCompatActivity {
         final TextInputEditText recipeUrl = (TextInputEditText) findViewById(R.id.text_url);
         recipeUrl.setText(recipe.getUrl());
         final Switch favouriteSwitch = (Switch) findViewById(R.id.switch2);
+        final Button addIngredientButton = (Button) findViewById(R.id.button_add_ingredient);
+        //inflater pulls a layout resource
+        LayoutInflater inflater = (LayoutInflater) getApplicationContext().
+                getSystemService(LAYOUT_INFLATER_SERVICE);
+        //Assigning the layout/UI to the popup window
+        View popupView = inflater.inflate(R.layout.popup_add_ingredient,null);
+
+        final TextInputEditText textName = (TextInputEditText) popupView.findViewById(R.id.text_name);
+        final EditText textAmount = (EditText) popupView.findViewById(R.id.text_number);
+        Button confirmIngredientButton = (Button) popupView.findViewById(R.id.button_confirm_ingredient);
         favouriteSwitch.setEnabled(false);
         if (recipe.getFavourite() == 1) {
             favouriteSwitch.setChecked(true);
         } else {
             favouriteSwitch.setChecked(false);
         }
+
+
 
         Cursor cursor = mDb.rawQuery("SELECT Ingredients.name, RecipeIngredients.measurement" +
                 " FROM Ingredients INNER JOIN RecipeIngredients ON" +
@@ -139,6 +163,8 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     recipeCalories.setEnabled(true);
                     recipeUrl.setEnabled(true);
                     favouriteSwitch.setEnabled(true);
+                    addIngredientButton.setEnabled(true);
+                    addIngredientButton.setVisibility(View.VISIBLE);
                 }
                 else{
                     int mode = 0;
@@ -150,6 +176,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                             + recipeDesc.getText() + "', prep_time = '" + recipePrepTime.getText() + "', calories = "
                             + recipeCalories.getText() + ", url = '" + recipeUrl.getText() + "', favourite = '"+ mode + "' WHERE recipe_id = "
                             + recipe.getId() + ";");
+                    Toast.makeText(ViewRecipeActivity.this, "Recipe Updated!", Toast.LENGTH_SHORT).show();
 
                     fab.setImageResource(R.drawable.ic_edit);
                     recipeName.setEnabled(false);
@@ -158,6 +185,9 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     recipeCalories.setEnabled(false);
                     recipeUrl.setEnabled(false);
                     favouriteSwitch.setEnabled(false);
+                    addIngredientButton.setEnabled(false);
+                    addIngredientButton.setVisibility(View.GONE);
+
                 }
             }
         });
@@ -209,6 +239,9 @@ public class ViewRecipeActivity extends AppCompatActivity {
         /* Defines the recycler view(s) here, in order to populate it with ingredients the user doesn't have first,
         Or in the case where it is cookable, so it ignores the second list entirely
          */
+        ingredientAdapter = new IngredientAdapter(ingList);
+        recipeListView.setAdapter(ingredientAdapter);
+
         if (cookable) {
             cook.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -221,11 +254,8 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     finish(); // Should return
                 }
             });
-            if (ingList != null) {
-                IngredientAdapter ingredientAdapter = new IngredientAdapter(ingList);
-                //Setting the list adapter
-                recipeListView.setAdapter(ingredientAdapter);
-            }
+            //Setting the list adapter
+            recipeListView.setAdapter(ingredientAdapter);
             //Generating a layout and dividers for the list
             recipeListView.setLayoutManager(new LinearLayoutManager(this));
             recipeListView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
@@ -247,15 +277,105 @@ public class ViewRecipeActivity extends AppCompatActivity {
             ownedIngredientsView.setLayoutManager(new LinearLayoutManager(this));
             ownedIngredientsView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
                     DividerItemDecoration.VERTICAL));
-            cook.setRotation(45);
-            cook.setImageResource(R.drawable.ic_add); // Need to find a different icon for this.
-            cook.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(ViewRecipeActivity.this, "You don't have enough food!", Toast.LENGTH_SHORT).show();
-                }
-            });
+            cook.setVisibility(View.INVISIBLE);
         }
+
+
+        //Add Ingredient button that generates a small popup menu
+        addIngredientButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //inflater pulls a layout resource
+                LayoutInflater inflater = (LayoutInflater) getApplicationContext().
+                        getSystemService(LAYOUT_INFLATER_SERVICE);
+                //Assigning the layout/UI to the popup window
+                View popupView = inflater.inflate(R.layout.popup_add_ingredient,null);
+
+                //Initialise Popup with the layout view
+                final PopupWindow popup = new PopupWindow(
+                        popupView,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+                //Allow text boxes to be clicked on
+                popup.setFocusable(true);
+                //Small UI thing that makes the popup stick out
+                if(Build.VERSION.SDK_INT>=21){
+                    popup.setElevation(5.0f);
+                }
+
+                //Spinner object (Dropdown menu)
+                final Spinner spInventory = (Spinner) popupView.findViewById(R.id.spinner_inventory);
+                /*Giving the spinner a list of ingredients the user currently has.
+                 * The user can click on one to quickly add an ingredient
+                 */
+                final ArrayAdapter<Ingredient> adapter = new ArrayAdapter<>(getApplicationContext(),
+                        android.R.layout.simple_spinner_item,ingList);
+                //UI element for a drop down item
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spInventory.setAdapter(adapter);
+
+                //Initialise UI elements for the popup
+                final TextInputEditText textName = (TextInputEditText) popupView.findViewById(R.id.text_name);
+                final EditText textAmount = (EditText) popupView.findViewById(R.id.text_number);
+                Button confirmIngredientButton = (Button) popupView.findViewById(R.id.button_confirm_ingredient);
+
+                //When an item is clicked on the spinner it adds the name to the name text box
+                spInventory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                        textName.setText(adapterView.getItemAtPosition(i).toString());
+                    }
+
+                    //Currently does nothing when nothing is selected
+                    @Override
+                    public void onNothingSelected(AdapterView<?> adapterView) { }
+                });
+
+                //Confirming the ingredient adds the ingredient to the recipe ingredient list
+                confirmIngredientButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //New Ingredient object
+                        Ingredient ingredient = new Ingredient();
+                        //Assign attributes
+                        ingredient.setName(textName.getText().toString());
+                        ingredient.setNumber(textAmount.getText().toString());
+                        //Today's date + 3 days
+                        boolean found = false;
+                        for (Ingredient ing : ingList) {
+                            if (ing.getName().equals(textName.getText().toString())) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('" + textName.getText().toString() + "','0000-03-00','0')");
+                        }
+                        Cursor cursor = mDb.rawQuery("SELECT ing_id FROM Ingredients WHERE name='"+ingredient.getName()+"'",null);
+                        cursor.moveToPosition(0);
+                        int count = cursor.getInt(cursor.getColumnIndex("ing_id"));
+                        ingredient.setId(count);
+                        System.out.println(count);
+                        recipe.addIngredient(ingredient);
+                        ingList.add(ingredient);
+
+                        mDb.execSQL("INSERT INTO 'RecipeIngredients' (recipe_id,ing_id,measurement,detail) " +
+                                "VALUES ('"+recipe.getId()+"','"+ingredient.getId()+"','"+textAmount.getText()+"','detail')");
+//                                Insert into 'Ingredients'(name, best_before, num) VALUES('" + textName.getText().toString() + "','0000-03-00','0')");
+
+                        //Add to the list
+                        //Notifying the adapter means the list UI can be updated to show the new ingredient
+                        ingredientAdapter.notifyItemInserted(ingList.size());
+                        //Popup can now disappear
+                        popup.dismiss();
+                    }
+                });
+                //Show popup at the middle of the screen
+                popup.showAtLocation(view, Gravity.CENTER, 0, 0);
+            }
+        });
 
     }
 

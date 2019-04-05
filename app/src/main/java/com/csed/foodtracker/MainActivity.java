@@ -23,11 +23,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-
-
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -261,6 +258,8 @@ public class MainActivity extends AppCompatActivity
      * out ones which can or can't be cooked, based on the choice
      */
     private void initialiseListUI(){
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
         RecyclerView recipeListView = findViewById(R.id.recipe_recyclerview);
         RecipeAdapter recipeAdapter;
         final List<Recipe> newRecipeList = new ArrayList<>(); // This is the list that ends up being used for recipeListView
@@ -406,10 +405,40 @@ public class MainActivity extends AppCompatActivity
                     themeEditor.putString("theme", "1").apply();
                 }
 //                recreate();
-
                 // User chose the "Settings" item, show the app settings UI...
                 return true;
+            case R.id.action_resetDb:
+                // Deletes all records from the database
+                mDb.execSQL("DELETE FROM Ingredients;");
+                mDb.execSQL("DELETE FROM Recipes;");
+                mDb.execSQL("DELETE FROM RecipeIngredients;");
+                // Refills the datahase with stock data
+                //TODO: Find a better way of doing this
+                mDb.execSQL("INSERT INTO 'main'.'Recipes' ('recipe_id', 'name', 'description', 'image', 'prep_time', 'calories', 'url', 'favourite') VALUES ('1', 'Spaghetti Bolognese', 'Put the onion and oil in a large pan and fry over a fairly high heat for 3-4 mins. Add the garlic and mince and fry until they both brown. Add the mushrooms and herbs, and cook for another couple of mins.', 'spaghetti-bolognese.jpg', '00:10', '640', 'https://www.goodtoknow.co.uk/recipes/spaghetti-bolognese-1', '0')");
+                mDb.execSQL("INSERT INTO 'main'.'Recipes' ('recipe_id', 'name', 'description', 'image', 'prep_time', 'calories', 'url', 'favourite') VALUES ('2', 'Pasta and Pesto', '1) Cook pasta; 2) Add pesto; 3) ??; 4) Profit.', 'pestoPasta.jpg', '00:10', '10', 'http://allrecipes.co.uk/consent/?dest=/recipe/1646/hey-pesto-pasta.aspx', '0');");
+                mDb.execSQL("INSERT INTO 'main'.'Recipes' ('recipe_id', 'name', 'description', 'image', 'prep_time', 'calories', 'url', 'favourite') VALUES ('3', 'Bacon Pasta', 'Cook pasta in pot and cook bacon in pan, then put together.', 'baconPasta.jpg', '00:13', '100', 'https://www.google.com/', '0');");
+                mDb.execSQL("INSERT INTO 'main'.'Recipes' ('recipe_id', 'name', 'description', 'image', 'prep_time', 'calories', 'url', 'favourite') VALUES ('4', 'Pizza', 'Cook pizza in pizza and cook pizza in pizza, then put pizza.', 'pizza.jpg', '55:55', '555', 'https://www.help.me/', '0');");
+                mDb.execSQL("INSERT INTO 'main'.'Recipes' ('recipe_id', 'name', 'description', 'image', 'prep_time', 'calories', 'url', 'favourite') VALUES ('5', 'Toast', 'Put bread in the toaster. Set the dial to prefered setting. Wait for it to pop, then add butter and chicken to taste.', 'toast.jpg', '01:00', '1', 'https://www.toast.chicken/', '0');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('1', 'Onion', '0000-03-00', '2');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('5', 'Carrot', '0000-03-00', '5');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('6', 'Pasta', '0000-03-00', '400');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('7', 'Pesto', '0000-03-00', '150');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('8', 'Bread', '0000-03-00', '15');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('9', 'Bacon', '0000-03-00', '8');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('10', 'Pizza', '0000-03-00', '1');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('11', 'Cheese', '0000-01-00', '50');");
+                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('1', '1', '1', '1.0', 'Peeled and chopped');");
+                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('2', '1', '6', '100.0', 'Just put it in');");
+                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('3', '2', '6', '200.0', 'Just put it in');");
+                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('4', '2', '7', '25.0', 'Put it on top');");
+                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('5', '3', '6', '100.0', 'Just put it in');");
+                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('6', '3', '9', '10.0', 'All the bacons');");
+                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('7', '4', '10', '1.0', 'It''s pizza');");
+                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('8', '5', '8', '2.0', 'Toast');");
+                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('9', '2', '11', '3.0', 'Sprinkle it on top');");
+                Toast.makeText(MainActivity.this, "Reset Database", Toast.LENGTH_SHORT).show();
 
+                return true;
             case R.id.action_filter:
 
                 //Show filter options
@@ -435,35 +464,27 @@ public class MainActivity extends AppCompatActivity
                     public boolean onMenuItemClick(MenuItem item) {
                         switch (item.getItemId()) {
                             case R.id.filter_available:
-
-                                Toast.makeText(MainActivity.this, "Show Available", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "Showing Cookable", Toast.LENGTH_SHORT).show();
                                 item.setChecked(true);
                                 filterMode = 1;
                                 initialiseListUI();
-
                                 return true;
-
                             case R.id.filter_unavailable:
-
-                                Toast.makeText(MainActivity.this, "Show Unavailable", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "Showing Uncookable", Toast.LENGTH_SHORT).show();
                                 item.setChecked(true);
                                 filterMode = 2;
                                 initialiseListUI();
-
                                 return true;
                             case R.id.filter_all:
-
-                                Toast.makeText(MainActivity.this, "Show All", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "Showing All", Toast.LENGTH_SHORT).show();
                                 item.setChecked(true);
                                 filterMode = 0;
                                 initialiseListUI();
                                 return true;
-
                             default:
                                 // If we got here, the user's action was not recognized.
                                 // Invoke the superclass to handle it.
                                 return false;
-
                         }
                     }
                 });
@@ -493,11 +514,28 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        Intent intent;
         switch (id) {
             case R.id.nav_ingredients:
-                Intent intent = new Intent(this, IngredientsActivity.class);
+                intent = new Intent(this, IngredientsActivity.class);
                 intent.putExtra("ingredientList", ingredientList);
                 startActivity(intent);
+                break;
+            case R.id.nav_addRecipe:
+                intent = new Intent(getApplicationContext(),AddRecipeActivity.class);
+                //Put ingredient list into Intent
+                intent.putExtra("ingredientList",ingredientList);
+                //Begin new activity
+                startActivity(intent);
+                break;
+            case R.id.nav_addIngredient:
+                intent = new Intent(getApplicationContext(),AddIngredientActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.nav_uploadPhoto:
+                intent = new Intent(getApplicationContext(),UploadRecieptActivity.class);
+                startActivity(intent);
+                break;
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

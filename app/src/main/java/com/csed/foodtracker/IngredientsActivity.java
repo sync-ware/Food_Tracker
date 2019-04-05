@@ -89,11 +89,12 @@ public class IngredientsActivity extends AppCompatActivity
 
 
         for (Ingredient ing : ingredientList){
-            if (ing.getNumber().equals("")) {
-//                Toast.makeText(IngredientsActivity.this, ing.getName(), Toast.LENGTH_SHORT).show();
+            try {
+                if (Integer.parseInt(ing.getNumber()) > 0) {
+                    availableIngredients.add(ing);
+                }
+            } catch (NumberFormatException e) {
                 ing.setNumber("0");
-            }
-            if (Integer.parseInt(ing.getNumber()) > 0){
                 availableIngredients.add(ing);
             }
         }
@@ -150,12 +151,32 @@ public class IngredientsActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
+        Intent intent;
         switch (id) {
 
             case R.id.nav_recipes:
-                Intent intent = new Intent(this, MainActivity.class);
+                intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
+                break;
+
+                //TODO: figure out why putExtra isn't working to allow this menu item to work
+/*            case R.id.nav_addRecipe:
+                intent = new Intent(getApplicationContext(),AddRecipeActivity.class);
+                //Put ingredient list into Intent
+                intent.putExtra("ingredientList",ingredientList);
+                //Begin new activity
+                startActivity(intent);
+                break;*/
+
+            case R.id.nav_addIngredient:
+                intent = new Intent(getApplicationContext(),AddIngredientActivity.class);
+                startActivity(intent);
+                break;
+
+            case R.id.nav_uploadPhoto:
+                intent = new Intent(getApplicationContext(),UploadRecieptActivity.class);
+                startActivity(intent);
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

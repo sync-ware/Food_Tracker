@@ -1,6 +1,7 @@
 package com.csed.foodtracker;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
@@ -60,7 +61,7 @@ public class AddIngredientsAdapter extends ArrayAdapter<Ingredient> {
         if (ingredientList != null && ingredientList.get(position) != null) {
             viewHolder.count.setText(ingredientList.get(position).getNumber());
         } else {
-            viewHolder.count.setText("Hm");
+            viewHolder.count.setText("");
         }
 // Add listener for edit text
         viewHolder.count
@@ -98,9 +99,24 @@ public class AddIngredientsAdapter extends ArrayAdapter<Ingredient> {
         }
         System.out.println(ingredientList.size());
         for (int i = 0; i <ingredientList.size(); i ++) {
+            String val = ingredientList.get(i).getNumber();
+            if (val == null) {
+                val = "1";
+            }
             //TODO: Doesn't reload until it restarts here. Add to universal ingredient list?
-            mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('"+ingredientList.get(i).getName()+"','0000-03-00','"+ingredientList.get(i).getNumber()+"')");
-            //TODO: Need to make sure ingredient doesn't exist before adding it to the database
+
+            Cursor cursor = mDb.rawQuery("SELECT num FROM Ingredients WHERE name='"+ingredientList.get(i).getName()+"'",null);
+            if (cursor.getCount() == 0) { // Insert if not exists
+                mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('" + ingredientList.get(i).getName() + "','0000-03-00','" + val+ "')");
+            } else {
+                cursor.moveToPosition(0);
+                int count = cursor.getInt(cursor.getColumnIndex("num")); // If this returns anything then it's fine
+                cursor.close();
+                int value = count+Integer.parseInt(val);
+//                    Toast.makeText(AddIngredientActivity.this, String.valueOf(value), Toast.LENGTH_SHORT).show();
+
+                mDb.execSQL("UPDATE Ingredients SET num ="+value+" WHERE name = '"+ingredientList.get(i).getName()+"'"); // Should increase the value
+            }
         }
         // SQL goes here
     }
