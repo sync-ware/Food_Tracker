@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
@@ -39,6 +40,8 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<Ingredient> ingredientList = new ArrayList<>();
     String themeVal;
     SharedPreferences themePrefs;
+    FloatingActionMenu materialDesignFAM;
+
 
 
     @Override
@@ -87,7 +90,6 @@ public class MainActivity extends AppCompatActivity
 
 
 
-        FloatingActionMenu materialDesignFAM;
         FloatingActionButton floatingActionButton1, floatingActionButton2, floatingActionButton3;
 
         materialDesignFAM = (FloatingActionMenu) findViewById(R.id.material_design_android_floating_action_menu);
@@ -164,9 +166,6 @@ public class MainActivity extends AppCompatActivity
                 int calories = recipeTable.getInt(recipeTable.getColumnIndex("calories"));
                 String url = recipeTable.getString(recipeTable.getColumnIndex("url"));
                 int favourite = recipeTable.getInt(recipeTable.getColumnIndex("favourite"));
-
-
-
                 //Set recipe attributes with data from the database
                 recipe.setId(id);
                 recipe.setName(name);
@@ -504,6 +503,7 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         //Reinitialise recipe list to reflect any changes
         recipeList.clear();
+        materialDesignFAM.close(false);
         createRecipeList();
         initialiseListUI();
         createIngredientList();
@@ -511,7 +511,7 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         Intent intent;
@@ -537,8 +537,6 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
                 break;
         }
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 }

@@ -2,7 +2,6 @@ package com.csed.foodtracker;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -19,12 +18,9 @@ public class AddIngredientsAdapter extends ArrayAdapter<Ingredient> {
 
     private Context iContext;
     private List<Ingredient> ingredientList;
-    DatabaseHelper mDBHelper;
-    SQLiteDatabase mDb;
 
 
-
-    public AddIngredientsAdapter(@NonNull Context context, ArrayList<Ingredient> list) {
+    protected AddIngredientsAdapter(@NonNull Context context, ArrayList<Ingredient> list) {
         super(context, 0 , list);
         iContext = context;
         ingredientList = list;
@@ -37,19 +33,19 @@ public class AddIngredientsAdapter extends ArrayAdapter<Ingredient> {
         int id;
 
         ListViewHolder(View v) {
-            itemName = (TextView) v.findViewById(R.id.Item_name);
-            count = (EditText) v.findViewById(R.id.Item_price);
+            itemName = v.findViewById(R.id.Item_name);
+            count = v.findViewById(R.id.Item_price);
         }
     }
 
     @Override
-    public View getView(int position, View view, ViewGroup parent) {
+    public View getView(int position, View view, @NonNull ViewGroup parent) {
         ListViewHolder viewHolder;
         if (view == null) {
             view = LayoutInflater.from(iContext).inflate(R.layout.list_items, parent, false);
             viewHolder = new ListViewHolder(view);
-            viewHolder.itemName = (TextView) view.findViewById(R.id.Item_name);
-            viewHolder.count = (EditText) view.findViewById(R.id.Item_price);
+            viewHolder.itemName = view.findViewById(R.id.Item_name);
+            viewHolder.count = view.findViewById(R.id.Item_price);
             view.setTag(viewHolder);
         } else {
             viewHolder = (ListViewHolder) view.getTag();
@@ -83,20 +79,15 @@ public class AddIngredientsAdapter extends ArrayAdapter<Ingredient> {
         return view;
     }
 
-    public void storeData(Context context) {
-        mDBHelper = new DatabaseHelper(context);
+    protected void storeData(Context context) {
+        DatabaseHelper mDBHelper = new DatabaseHelper(context);
 
         try {
             mDBHelper.updateDataBase();
         } catch (IOException mIOException) {
             throw new Error("UnableToUpdateDatabase");
         }
-
-        try {
-            mDb = mDBHelper.getWritableDatabase();
-        } catch (SQLException mSQLException) {
-            throw mSQLException;
-        }
+        SQLiteDatabase mDb = mDBHelper.getWritableDatabase();
         System.out.println(ingredientList.size());
         for (int i = 0; i <ingredientList.size(); i ++) {
             String val = ingredientList.get(i).getNumber();
@@ -113,11 +104,9 @@ public class AddIngredientsAdapter extends ArrayAdapter<Ingredient> {
                 int count = cursor.getInt(cursor.getColumnIndex("num")); // If this returns anything then it's fine
                 cursor.close();
                 int value = count+Integer.parseInt(val);
-//                    Toast.makeText(AddIngredientActivity.this, String.valueOf(value), Toast.LENGTH_SHORT).show();
 
                 mDb.execSQL("UPDATE Ingredients SET num ="+value+" WHERE name = '"+ingredientList.get(i).getName()+"'"); // Should increase the value
             }
         }
-        // SQL goes here
     }
 }

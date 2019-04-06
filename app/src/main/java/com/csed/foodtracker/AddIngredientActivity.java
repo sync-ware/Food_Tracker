@@ -34,8 +34,9 @@ public class AddIngredientActivity extends AppCompatActivity {
         }*/
 
         setContentView(R.layout.activity_add_ingredient);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
         mDBHelper = new DatabaseHelper(this);
@@ -50,7 +51,7 @@ public class AddIngredientActivity extends AppCompatActivity {
             mDb = mDBHelper.getWritableDatabase();
 
         } catch (SQLException mSQLException) {
-            throw mSQLException;
+//            throw mSQLException;
         }
 
         //Initialise UI elements for the popup
@@ -71,16 +72,11 @@ public class AddIngredientActivity extends AppCompatActivity {
                     int count = cursor.getInt(cursor.getColumnIndex("num")); // If this returns anything then it's fine
                     cursor.close();
                     int value = count+Integer.parseInt(textAmount.getText().toString());
-//                    Toast.makeText(AddIngredientActivity.this, String.valueOf(value), Toast.LENGTH_SHORT).show();
-
                     mDb.execSQL("UPDATE Ingredients SET num ="+value+" WHERE name = '"+textName.getText().toString()+"'"); // Should increase the value
                 }
-//                mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('"+"hi"+"','"+dtf.format(date)+"','"+"2"+"')");
                 finish();
             }
         });
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
     }
 
     @Override
@@ -91,10 +87,14 @@ public class AddIngredientActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
-            finish(); // close this activity and return to preview activity (if there is any)
-        }
+//            finish(); // close this activity and return to preview activity (if there is any)
+            return super.onOptionsItemSelected(item);
 
-        return super.onOptionsItemSelected(item);
+        }
+        else {
+            return false;
+        }
+//        return super.onOptionsItemSelected(item);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

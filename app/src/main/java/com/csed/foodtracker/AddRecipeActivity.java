@@ -93,7 +93,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         final EditText calories = findViewById(R.id.text_calories);
         final EditText url = findViewById(R.id.text_url);
 
-
+//TODO: Pressing the back icon on the task bar of this menu fixes divider bug
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -218,11 +218,8 @@ public class AddRecipeActivity extends AppCompatActivity {
                         popup.dismiss();
                     }
                 });
-
                 //Show popup at the middle of the screen
                 popup.showAtLocation(view, Gravity.CENTER, 0, 0);
-
-
             }
         });
 
