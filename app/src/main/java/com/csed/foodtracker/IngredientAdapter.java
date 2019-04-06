@@ -35,7 +35,7 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.Vi
         LayoutInflater inflater = LayoutInflater.from(context);
 
         // Inflate the custom layout
-        View recipeView = inflater.inflate(R.layout.item_recipe, parent, false);
+        View recipeView = inflater.inflate(R.layout.item_recipe_view, parent, false);
 
         // Return a new holder instance
         ViewHolder viewHolder = new ViewHolder(recipeView);

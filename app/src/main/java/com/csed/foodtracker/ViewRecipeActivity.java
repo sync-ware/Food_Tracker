@@ -77,6 +77,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view_recipe);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //Retrieve Recipe from intent that was passed on to this activity
         recipe = (Recipe) getIntent().getSerializableExtra("recipe");
@@ -106,6 +107,9 @@ public class ViewRecipeActivity extends AppCompatActivity {
         final EditText textAmount = (EditText) popupView.findViewById(R.id.text_number);
         Button confirmIngredientButton = (Button) popupView.findViewById(R.id.button_confirm_ingredient);
         favouriteSwitch.setEnabled(false);
+        addIngredientButton.setEnabled(false);
+        addIngredientButton.setVisibility(View.GONE);
+
         if (recipe.getFavourite() == 1) {
             favouriteSwitch.setChecked(true);
         } else {
@@ -177,7 +181,6 @@ public class ViewRecipeActivity extends AppCompatActivity {
                             + recipeCalories.getText() + ", url = '" + recipeUrl.getText() + "', favourite = '"+ mode + "' WHERE recipe_id = "
                             + recipe.getId() + ";");
                     Toast.makeText(ViewRecipeActivity.this, "Recipe Updated!", Toast.LENGTH_SHORT).show();
-
                     fab.setImageResource(R.drawable.ic_edit);
                     recipeName.setEnabled(false);
                     recipeDesc.setEnabled(false);
@@ -187,7 +190,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     favouriteSwitch.setEnabled(false);
                     addIngredientButton.setEnabled(false);
                     addIngredientButton.setVisibility(View.GONE);
-
+                    finish();
                 }
             }
         });
@@ -379,7 +382,6 @@ public class ViewRecipeActivity extends AppCompatActivity {
 
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -389,8 +391,6 @@ public class ViewRecipeActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
-
         switch(item.getItemId()){
             //Deletes Recipe from Ingredients
             case R.id.action_delete:
@@ -404,11 +404,11 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 return true;
 
             default:
+                finish(); // Bodge
                 return super.onOptionsItemSelected(item);
 
         }
-
-
     }
+
 
 }

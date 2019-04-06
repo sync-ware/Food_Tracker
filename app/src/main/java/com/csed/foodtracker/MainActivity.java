@@ -41,6 +41,9 @@ public class MainActivity extends AppCompatActivity
     String themeVal;
     SharedPreferences themePrefs;
     FloatingActionMenu materialDesignFAM;
+    RecipeAdapter recipeAdapter;
+    RecyclerView recipeListView;
+
 
 
 
@@ -76,6 +79,10 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        recipeListView = findViewById(R.id.recipe_recyclerview);
+        recipeListView.setLayoutManager(new LinearLayoutManager(this));
+        recipeListView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
+                DividerItemDecoration.VERTICAL));
 
         setSupportActionBar(toolbar);
 
@@ -89,7 +96,6 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-
         FloatingActionButton floatingActionButton1, floatingActionButton2, floatingActionButton3;
 
         materialDesignFAM = (FloatingActionMenu) findViewById(R.id.material_design_android_floating_action_menu);
@@ -101,9 +107,9 @@ public class MainActivity extends AppCompatActivity
         floatingActionButton1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 //Intent to transfer from current page to new the add recipe activity
-                Intent intent = new Intent(getApplicationContext(),AddRecipeActivity.class);
+                Intent intent = new Intent(getApplicationContext(), AddRecipeActivity.class);
                 //Put ingredient list into Intent
-                intent.putExtra("ingredientList",ingredientList);
+                intent.putExtra("ingredientList", ingredientList);
                 //Begin new activity
                 startActivity(intent);
             }
@@ -111,7 +117,7 @@ public class MainActivity extends AppCompatActivity
         floatingActionButton2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 //Intent to transfer from current page to new the add recipe activity
-                Intent intent = new Intent(getApplicationContext(),AddIngredientActivity.class);
+                Intent intent = new Intent(getApplicationContext(), AddIngredientActivity.class);
                 //Put ingredient list into Intent
 //                intent.putExtra("ingredientList",ingredientList);
                 //Begin new activity
@@ -120,7 +126,7 @@ public class MainActivity extends AppCompatActivity
         });
         floatingActionButton3.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(),UploadRecieptActivity.class);
+                Intent intent = new Intent(getApplicationContext(), UploadRecieptActivity.class);
                 startActivity(intent);
             }
         });
@@ -142,19 +148,19 @@ public class MainActivity extends AppCompatActivity
      * Method that will go through each row in the database and generate new Recipe object which will
      * then be added to the list
      */
-    private void createRecipeList(){
+    private void createRecipeList() {
         //Stops items in the list from duplication which can occur when relaunching the activity
-        if (recipeList.isEmpty()){
+        if (recipeList.isEmpty()) {
             //Select SQL Query that pulls data from database and stores it in cursor object
             Cursor recipeTable = mDb.rawQuery("SELECT Recipes.recipe_id, Recipes.name, Recipes.description, Recipes.image," +
-                    "Recipes.prep_time, Recipes.calories, Recipes.url, Recipes.favourite FROM Recipes",null);
+                    "Recipes.prep_time, Recipes.calories, Recipes.url, Recipes.favourite FROM Recipes ORDER BY Recipes.favourite DESC, Recipes.name ASC", null);
 
-
+// TODO: Add this working ()
             // Returns all. But we want to "order" by cookable
             //Start at first row
             recipeTable.moveToPosition(0);
             //Keep looping until you reach the last row
-            while (recipeTable.getPosition() < recipeTable.getCount()){
+            while (recipeTable.getPosition() < recipeTable.getCount()) {
                 Recipe recipe = new Recipe();
 
                 //Retrieve data from each column
@@ -191,13 +197,13 @@ public class MainActivity extends AppCompatActivity
      * Refer to createRecipeList() Method for understanding. Works in exactly the same way except we
      * are now creating ingredients objects
      */
-    private void createIngredientList(){
-        if (ingredientList.isEmpty()){
+    private void createIngredientList() {
+        if (ingredientList.isEmpty()) {
             Cursor ingredientTable = mDb.rawQuery("SELECT Ingredients.ing_id, Ingredients.name, Ingredients.best_before," +
                     "Ingredients.num FROM Ingredients ", null);
 
             ingredientTable.moveToPosition(0);
-            while (ingredientTable.getPosition() < ingredientTable.getCount()){
+            while (ingredientTable.getPosition() < ingredientTable.getCount()) {
                 Ingredient ingredient = new Ingredient();
 
                 int id = ingredientTable.getInt(ingredientTable.getColumnIndex("ing_id"));
@@ -220,7 +226,7 @@ public class MainActivity extends AppCompatActivity
                     "Ingredients.num FROM Ingredients ", null);
 
             ingredientTable.moveToPosition(0);
-            while (ingredientTable.getPosition() < ingredientTable.getCount()){
+            while (ingredientTable.getPosition() < ingredientTable.getCount()) {
                 Ingredient ingredient = new Ingredient();
 
                 int id = ingredientTable.getInt(ingredientTable.getColumnIndex("ing_id"));
@@ -233,7 +239,7 @@ public class MainActivity extends AppCompatActivity
                 ingredient.setBestBefore(bestBefore);
                 ingredient.setNumber(num);
                 boolean found = false;
-                for (int i=0; i <ingredientList.size(); i++) {
+                for (int i = 0; i < ingredientList.size(); i++) {
                     if (ingredientList.get(i).getName().equals(ingredient.getName())) {
                         found = true;
                         break;
@@ -256,100 +262,96 @@ public class MainActivity extends AppCompatActivity
      * If the user chooses one of the other options (1 or 2), then a new list is created, filtering
      * out ones which can or can't be cooked, based on the choice
      */
-    private void initialiseListUI(){
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        RecyclerView recipeListView = findViewById(R.id.recipe_recyclerview);
-        RecipeAdapter recipeAdapter;
+    protected void initialiseListUI() {
+/*        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);*/
         final List<Recipe> newRecipeList = new ArrayList<>(); // This is the list that ends up being used for recipeListView
         if (filterMode == 0) { // filterMode 0 is all option
             recipeList.sort(new RecipeComparitor());
-            recipeAdapter = new RecipeAdapter(recipeList); // Ordered one instead
+            recipeAdapter = new RecipeAdapter(recipeList, getResources(), this); // Ordered one instead
         } else {
-                try {
-                    for (int i = 0; i < 100; i++) {
-                        Cursor fullQuery = mDb.rawQuery("SELECT Recipes.recipe_id " +
-                                "FROM Ingredients,RecipeIngredients INNER JOIN Recipes " +
-                                "ON RecipeIngredients.ing_id = Ingredients.ing_id " +
-                                "AND Recipes.recipe_id = RecipeIngredients.recipe_id " +
-                                "WHERE Recipes.recipe_id ='" + i + "' ORDER BY Recipes.recipe_id;",
-                                null);
-                        fullQuery.moveToPosition(0);
-                        // Defining the Recipe ID array list variables
-                        List<Integer> fullRecipeIDList = new ArrayList<>();
-                        List<Integer> cookableRecipeIDList = new ArrayList<>();
-                        //Keep looping until you reach the last row
+            try {
+                for (int i = 0; i < 100; i++) {
+                    Cursor fullQuery = mDb.rawQuery("SELECT Recipes.recipe_id " +
+                                    "FROM Ingredients,RecipeIngredients INNER JOIN Recipes " +
+                                    "ON RecipeIngredients.ing_id = Ingredients.ing_id " +
+                                    "AND Recipes.recipe_id = RecipeIngredients.recipe_id " +
+                                    "WHERE Recipes.recipe_id ='" + i + "' ORDER BY Recipes.recipe_id;",
+                            null);
+                    fullQuery.moveToPosition(0);
+                    // Defining the Recipe ID array list variables
+                    List<Integer> fullRecipeIDList = new ArrayList<>();
+                    List<Integer> cookableRecipeIDList = new ArrayList<>();
+                    //Keep looping until you reach the last row
 
-                        while (fullQuery.getPosition() < fullQuery.getCount()) {
-                            //Retrieve data from each column
-                            int id = fullQuery.getInt(fullQuery.getColumnIndex("recipe_id"));
-                            fullRecipeIDList.add(id);
-                            fullQuery.moveToNext();
+                    while (fullQuery.getPosition() < fullQuery.getCount()) {
+                        //Retrieve data from each column
+                        int id = fullQuery.getInt(fullQuery.getColumnIndex("recipe_id"));
+                        fullRecipeIDList.add(id);
+                        fullQuery.moveToNext();
+                    }
+                    fullQuery.close();
+                    Cursor cookableQuery = mDb.rawQuery("SELECT Recipes.recipe_id " +
+                                    "FROM Ingredients,RecipeIngredients " +
+                                    "INNER JOIN Recipes ON RecipeIngredients.ing_id = Ingredients.ing_id " +
+                                    "AND Recipes.recipe_id = RecipeIngredients.recipe_id " +
+                                    "AND RecipeIngredients.measurement <= Ingredients.num " +
+                                    "WHERE Recipes.recipe_id ='" + i + "' ORDER BY Recipes.recipe_id;",
+                            null);
+                    cookableQuery.moveToPosition(0);
+                    while (cookableQuery.getPosition() < cookableQuery.getCount()) {
+                        //Retrieve data from each column
+                        int id = cookableQuery.getInt(cookableQuery.getColumnIndex("recipe_id"));
+                        cookableRecipeIDList.add(id);
+                        cookableQuery.moveToNext();
+                    }
+                    cookableQuery.close();
+                    // The following statement checks to see if they have all of the required ingredients
+                    if (fullRecipeIDList.size() == cookableRecipeIDList.size() && filterMode == 1) { // 1 is cookable only
+                        for (Recipe r : recipeList) { // If they do, then it loops through to find the recipe they're trying to cook
+                            if (cookableRecipeIDList.indexOf(r.getId()) != -1) {
+                                newRecipeList.add(r);
+                            }
                         }
-                        fullQuery.close();
-                        Cursor cookableQuery = mDb.rawQuery("SELECT Recipes.recipe_id " +
-                                "FROM Ingredients,RecipeIngredients " +
-                                "INNER JOIN Recipes ON RecipeIngredients.ing_id = Ingredients.ing_id " +
-                                "AND Recipes.recipe_id = RecipeIngredients.recipe_id " +
-                                "AND RecipeIngredients.measurement <= Ingredients.num " +
-                                "WHERE Recipes.recipe_id ='" + i + "' ORDER BY Recipes.recipe_id;",
-                                null);
-                        cookableQuery.moveToPosition(0);
-                        while (cookableQuery.getPosition() < cookableQuery.getCount()) {
-                            //Retrieve data from each column
-                            int id = cookableQuery.getInt(cookableQuery.getColumnIndex("recipe_id"));
-                            cookableRecipeIDList.add(id);
-                            cookableQuery.moveToNext();
-                        }
-                        cookableQuery.close();
-                        // The following statement checks to see if they have all of the required ingredients
-                        if (fullRecipeIDList.size() == cookableRecipeIDList.size() && filterMode == 1) { // 1 is cookable only
-                            for (Recipe r : recipeList) { // If they do, then it loops through to find the recipe they're trying to cook
-                                if (cookableRecipeIDList.indexOf(r.getId()) != -1) {
-                                    newRecipeList.add(r);
+                    } else if (filterMode == 2) { // 2 is non cookable only
+                        int ingCount = 0;
+                        int actCount = 0;
+                        int curr = -1;
+                        // Loops through to count the number of instances of each ID
+                        // Then only shows the, of the count is equal
+                        for (int ing : fullRecipeIDList) {
+                            for (int ii : cookableRecipeIDList) {
+                                if (ii == ing) {
+                                    ingCount++;
                                 }
                             }
-                        } else if (filterMode == 2) { // 2 is non cookable only
-                            int ingCount = 0;
-                            int actCount = 0;
-                            int curr = -1;
-                            // Loops through to count the number of instances of each ID
-                            // Then only shows the, of the count is equal
-                            for (int ing : fullRecipeIDList) {
-                                for (int ii : cookableRecipeIDList) {
-                                    if (ii == ing) {
-                                        ingCount++;
-                                    }
-                                }
-                                if (ing == curr) {
-                                    actCount++;
-                                    System.out.println(actCount == ingCount);
-                                }
-                                if (ingCount == actCount) {
-                                    for (Recipe r : recipeList) {
-                                        if (r.getId() == ing) {
-                                            newRecipeList.add(r);
-                                        }
-                                    }
-                                }
-                                actCount = 0;
-                                ingCount = 0;
-                                curr = ing;
+                            if (ing == curr) {
+                                actCount++;
+                                System.out.println(actCount == ingCount);
                             }
+                            if (ingCount == actCount) {
+                                for (Recipe r : recipeList) {
+                                    if (r.getId() == ing) {
+                                        newRecipeList.add(r);
+                                    }
+                                }
+                            }
+                            actCount = 0;
+                            ingCount = 0;
+                            curr = ing;
                         }
                     }
-                } catch (IndexOutOfBoundsException e) { // Bodge to avoid another SQL query
-                    Toast.makeText(MainActivity.this, "Finished Loading", Toast.LENGTH_SHORT).show();
                 }
-                recipeAdapter = new RecipeAdapter(newRecipeList); // Defines the adapter with the newRecipeList
+            } catch (IndexOutOfBoundsException e) { // Bodge to avoid another SQL query
+                Toast.makeText(MainActivity.this, "Finished Loading", Toast.LENGTH_SHORT).show();
             }
+            newRecipeList.sort(new RecipeComparitor());
+            recipeAdapter = new RecipeAdapter(newRecipeList, getResources(), this); // Defines the adapter with the newRecipeList
+        }
 
         //Setting the list adapter
         recipeListView.setAdapter(recipeAdapter);
         //Generating a layout and dividers for th]e list
-        recipeListView.setLayoutManager(new LinearLayoutManager(this));
-        recipeListView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
-                DividerItemDecoration.VERTICAL));
 
         //Item select event
         recipeAdapter.setOnItemClickListener(new RecipeAdapter.ClickListener() {
@@ -357,10 +359,10 @@ public class MainActivity extends AppCompatActivity
             public void onItemClick(int position, View v) {
                 //Building a new intent to go from the current context to the ViewRecipe page
                 Intent intent = new Intent(getApplicationContext(), ViewRecipeActivity.class);
-                intent.putExtra("mode",filterMode); // Added a new intent to pass the filter mode into the ViewRecipeActivity
+                intent.putExtra("mode", filterMode); // Added a new intent to pass the filter mode into the ViewRecipeActivity
                 //Passing the recipe that was clicked on to the new page
                 if (filterMode == 0) { // This is added to make sure the correct recipe appears
-                    intent.putExtra("recipe",recipeList.get(position));
+                    intent.putExtra("recipe", recipeList.get(position));
 
                 } else { // newRecipeList only is used during other filter modes.
                     intent.putExtra("recipe", newRecipeList.get(position));
@@ -447,10 +449,9 @@ public class MainActivity extends AppCompatActivity
                 inflater.inflate(R.menu.filters, popup.getMenu());
                 popup.show();
 
-                if (filterMode == 0){
+                if (filterMode == 0) {
                     popup.getMenu().getItem(0).setChecked(true);
-                }
-                else if (filterMode == 1){
+                } else if (filterMode == 1) {
                     popup.getMenu().getItem(1).setChecked(true);
                 } else if (filterMode == 2) {
 
@@ -499,7 +500,7 @@ public class MainActivity extends AppCompatActivity
 
     //Action when main activity is resumed
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         //Reinitialise recipe list to reflect any changes
         recipeList.clear();
@@ -522,18 +523,18 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
                 break;
             case R.id.nav_addRecipe:
-                intent = new Intent(getApplicationContext(),AddRecipeActivity.class);
+                intent = new Intent(getApplicationContext(), AddRecipeActivity.class);
                 //Put ingredient list into Intent
-                intent.putExtra("ingredientList",ingredientList);
+                intent.putExtra("ingredientList", ingredientList);
                 //Begin new activity
                 startActivity(intent);
                 break;
             case R.id.nav_addIngredient:
-                intent = new Intent(getApplicationContext(),AddIngredientActivity.class);
+                intent = new Intent(getApplicationContext(), AddIngredientActivity.class);
                 startActivity(intent);
                 break;
             case R.id.nav_uploadPhoto:
-                intent = new Intent(getApplicationContext(),UploadRecieptActivity.class);
+                intent = new Intent(getApplicationContext(), UploadRecieptActivity.class);
                 startActivity(intent);
                 break;
         }

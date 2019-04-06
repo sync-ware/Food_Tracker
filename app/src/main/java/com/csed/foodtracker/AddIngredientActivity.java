@@ -87,14 +87,10 @@ public class AddIngredientActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
-//            finish(); // close this activity and return to preview activity (if there is any)
-            return super.onOptionsItemSelected(item);
-
+            finish(); // close this activity and return to preview activity (if there is any)
+            return true;
         }
-        else {
-            return false;
-        }
-//        return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
