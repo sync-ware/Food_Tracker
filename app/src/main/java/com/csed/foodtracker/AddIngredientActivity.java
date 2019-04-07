@@ -13,6 +13,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import java.io.IOException;
 
 public class AddIngredientActivity extends AppCompatActivity {
@@ -62,19 +64,26 @@ public class AddIngredientActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Ingredient Added", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                Cursor cursor = mDb.rawQuery("SELECT num FROM Ingredients WHERE name='"+textName.getText()+"'",null);
-                if (cursor.getCount() == 0) { // Insert if not exists
-                    mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('" + textName.getText().toString() + "','0000-03-00','" + textAmount.getText().toString() + "')");
+                if (!textName.getText().toString().equals("")) {
+                    if (textAmount.getText().toString().equals("")) {
+                        textAmount.setText("0");
+                    }
+                    Snackbar.make(view, "Ingredient Added", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                    Cursor cursor = mDb.rawQuery("SELECT num FROM Ingredients WHERE name='" + textName.getText() + "'", null);
+                    if (cursor.getCount() == 0) { // Insert if not exists
+                        mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('" + textName.getText().toString() + "','0000-03-00','" + textAmount.getText().toString() + "')");
+                    } else {
+                        cursor.moveToPosition(0);
+                        int count = cursor.getInt(cursor.getColumnIndex("num")); // If this returns anything then it's fine
+                        cursor.close();
+                        int value = count + Integer.parseInt(textAmount.getText().toString());
+                        mDb.execSQL("UPDATE Ingredients SET num =" + value + " WHERE name = '" + textName.getText().toString() + "'"); // Should increase the value
+                    }
+                    finish();
                 } else {
-                    cursor.moveToPosition(0);
-                    int count = cursor.getInt(cursor.getColumnIndex("num")); // If this returns anything then it's fine
-                    cursor.close();
-                    int value = count+Integer.parseInt(textAmount.getText().toString());
-                    mDb.execSQL("UPDATE Ingredients SET num ="+value+" WHERE name = '"+textName.getText().toString()+"'"); // Should increase the value
+                    Toast.makeText(AddIngredientActivity.this, "Enter a name!", Toast.LENGTH_SHORT).show();
                 }
-                finish();
             }
         });
     }

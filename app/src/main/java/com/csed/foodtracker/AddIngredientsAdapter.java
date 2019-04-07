@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,22 +81,24 @@ public class AddIngredientsAdapter extends ArrayAdapter<Ingredient> {
         return view;
     }
 
-    protected void storeData(Context context) {
+    protected boolean storeData(Context context) {
         DatabaseHelper mDBHelper = new DatabaseHelper(context);
 
         try {
             mDBHelper.updateDataBase();
         } catch (IOException mIOException) {
-            throw new Error("UnableToUpdateDatabase");
+            return false;
         }
         SQLiteDatabase mDb = mDBHelper.getWritableDatabase();
-        System.out.println(ingredientList.size());
+        if (ingredientList.size() == 0) {
+            return false;
+        }
         for (int i = 0; i <ingredientList.size(); i ++) {
             String val = ingredientList.get(i).getNumber();
             if (val == null) {
                 val = "1";
             }
-            //TODO: Doesn't reload until it restarts here. Add to universal ingredient list?
+            // TODO: Doesn't reload until it restarts here. Add to universal ingredient list?
 
             Cursor cursor = mDb.rawQuery("SELECT num FROM Ingredients WHERE name='"+ingredientList.get(i).getName()+"'",null);
             if (cursor.getCount() == 0) { // Insert if not exists
@@ -108,5 +112,6 @@ public class AddIngredientsAdapter extends ArrayAdapter<Ingredient> {
                 mDb.execSQL("UPDATE Ingredients SET num ="+value+" WHERE name = '"+ingredientList.get(i).getName()+"'"); // Should increase the value
             }
         }
+        return true;
     }
 }

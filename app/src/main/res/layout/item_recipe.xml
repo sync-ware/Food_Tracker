@@ -5,6 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:focusable="true"
+    android:clickable="true"
+    android:foreground="?android:attr/selectableItemBackground"
     android:paddingTop="10dp"
     android:paddingBottom="10dp">
 
@@ -20,6 +23,7 @@
         android:layout_height="28dp"
         android:layout_alignParentEnd = "true"
         android:layout_gravity="end"
-        android:background="@drawable/not_favourite" />
+        android:background="@drawable/not_favourite"
+        android:foreground="?android:attr/selectableItemBackground" />
 
 </LinearLayout>

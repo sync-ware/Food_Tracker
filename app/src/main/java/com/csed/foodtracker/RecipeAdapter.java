@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.List;
@@ -110,15 +111,17 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
                     favouriteButton.setBackground(fav);
                     recipe.setFavourite(1);
                     mDb.execSQL("UPDATE Recipes SET favourite = 1 WHERE name = '"+recipe.getName()+"'");
+                    Toast.makeText(context.getApplicationContext(),"Added "+recipe.getName()+" to favourites!",Toast.LENGTH_SHORT).show();
                     context.initialiseListUI();
                 } else {
                     favouriteButton.setBackground(notFav);
                     recipe.setFavourite(0);
                     mDb.execSQL("UPDATE Recipes SET favourite = 0 WHERE name = '"+recipe.getName()+"'");
+                    Toast.makeText(context.getApplicationContext(),"Removed "+recipe.getName()+" from favourites!",Toast.LENGTH_SHORT).show();
                     context.initialiseListUI();
                 }
             }
-        }); //TODO: Somehow reload the screen so the favourite appears on top
+        });
 //        Collections.swap(this.mListItems, oldIndex, index); notifyItemMoved(oldIndex, newIndex)
 
     }

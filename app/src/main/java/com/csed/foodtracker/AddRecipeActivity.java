@@ -1,13 +1,11 @@
 package com.csed.foodtracker;
 
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -93,7 +91,6 @@ public class AddRecipeActivity extends AppCompatActivity {
         final EditText calories = findViewById(R.id.text_calories);
         final EditText url = findViewById(R.id.text_url);
 
-//TODO: Pressing the back icon on the task bar of this menu fixes divider bug
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -224,5 +221,5 @@ public class AddRecipeActivity extends AppCompatActivity {
         });
 
     }
-
+//TODO: Make sure they can't add a recipe with no ingredients
 }

@@ -155,7 +155,6 @@ public class MainActivity extends AppCompatActivity
             Cursor recipeTable = mDb.rawQuery("SELECT Recipes.recipe_id, Recipes.name, Recipes.description, Recipes.image," +
                     "Recipes.prep_time, Recipes.calories, Recipes.url, Recipes.favourite FROM Recipes ORDER BY Recipes.favourite DESC, Recipes.name ASC", null);
 
-// TODO: Add this working ()
             // Returns all. But we want to "order" by cookable
             //Start at first row
             recipeTable.moveToPosition(0);

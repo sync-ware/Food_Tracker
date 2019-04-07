@@ -62,8 +62,29 @@ public class IngredientsActivity extends AppCompatActivity
         setContentView(R.layout.activity_ingredients);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        ingredientList = new ArrayList<>();
+//        ingredientList = (List<Ingredient>) getIntent().getSerializableExtra("ingredientList");
+        Cursor ingredientTable = mDb.rawQuery("SELECT Ingredients.ing_id, Ingredients.name, Ingredients.best_before," +
+                "Ingredients.num FROM Ingredients ", null);
 
-        ingredientList = (List<Ingredient>) getIntent().getSerializableExtra("ingredientList");
+        ingredientTable.moveToPosition(0);
+        while (ingredientTable.getPosition() < ingredientTable.getCount()) {
+            Ingredient ingredient = new Ingredient();
+
+            int id = ingredientTable.getInt(ingredientTable.getColumnIndex("ing_id"));
+            String name = ingredientTable.getString(ingredientTable.getColumnIndex("name"));
+            String bestBefore = ingredientTable.getString(ingredientTable.getColumnIndex("best_before"));
+            String num = ingredientTable.getString(ingredientTable.getColumnIndex("num"));
+
+            ingredient.setId(id);
+            ingredient.setName(name);
+            ingredient.setBestBefore(bestBefore);
+            ingredient.setNumber(num);
+
+            ingredientList.add(ingredient);
+            ingredientTable.moveToNext();
+        }
+        ingredientTable.close();
         checkIngredientList();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -88,7 +109,7 @@ public class IngredientsActivity extends AppCompatActivity
         List<Ingredient> availableIngredients = new ArrayList<>();
 
 
-        for (Ingredient ing : ingredientList){
+        for (Ingredient ing : ingredientList) {
             try {
                 if (Integer.parseInt(ing.getNumber()) > 0) {
                     availableIngredients.add(ing);

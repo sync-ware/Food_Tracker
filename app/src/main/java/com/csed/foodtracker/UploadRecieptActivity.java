@@ -214,11 +214,14 @@ public class UploadRecieptActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 //                ingredientsAdapter.getView(1,this, );
-                ingredientsAdapter.storeData(context);
-                Toast.makeText(UploadRecieptActivity.this, "Saved Changes", Toast.LENGTH_SHORT).show();
-                finish();
+                boolean completed = ingredientsAdapter.storeData(context);
+                if (completed) {
+                    Toast.makeText(UploadRecieptActivity.this, "Saved Changes", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    Toast.makeText(UploadRecieptActivity.this,"Add ingredients first!",Toast.LENGTH_SHORT).show();
+                }
 //                runMethod();
-
             }
         });
     }

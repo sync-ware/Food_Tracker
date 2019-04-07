@@ -4,18 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="top"
     android:orientation="vertical"
-    android:layout_gravity="center"
-    android:padding="10dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".AddRecipeActivity"
     tools:showIn="@layout/activity_upload_reciept">
 
 
     <TextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView" />
+        android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/use_camera_button"
@@ -30,18 +29,16 @@
         android:text="@string/button_add_photo" />
 
     <ListView
+        android:id="@+id/ingredient_list"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/ingredient_list">
-    </ListView>
+        android:layout_height="wrap_content"></ListView>
 
     <Button
         android:id="@+id/confirm_changes_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
         android:text="@string/button_add_ingredients" />
-
-
 
 
 </LinearLayout>

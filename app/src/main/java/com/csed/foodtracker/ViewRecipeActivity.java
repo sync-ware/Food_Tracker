@@ -1,5 +1,6 @@
 package com.csed.foodtracker;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -8,6 +9,8 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
@@ -109,6 +112,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
         favouriteSwitch.setEnabled(false);
         addIngredientButton.setEnabled(false);
         addIngredientButton.setVisibility(View.GONE);
+        final FloatingActionButton cancel = findViewById(R.id.cancel);
 
         if (recipe.getFavourite() == 1) {
             favouriteSwitch.setChecked(true);
@@ -169,6 +173,8 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     favouriteSwitch.setEnabled(true);
                     addIngredientButton.setEnabled(true);
                     addIngredientButton.setVisibility(View.VISIBLE);
+                    cancel.setVisibility(View.VISIBLE);
+                    cancel.setEnabled(true);
                 }
                 else{
                     int mode = 0;
@@ -190,6 +196,8 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     favouriteSwitch.setEnabled(false);
                     addIngredientButton.setEnabled(false);
                     addIngredientButton.setVisibility(View.GONE);
+                    cancel.setVisibility(View.GONE);
+                    cancel.setEnabled(false);
                     finish();
                 }
             }
@@ -237,6 +245,24 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 }
             }
         }
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(ViewRecipeActivity.this, "Recipe Not Updated", Toast.LENGTH_SHORT).show();
+                //TODO: Change text boxes back to what it was before
+                fab.setImageResource(R.drawable.ic_edit);
+                recipeName.setEnabled(false);
+                recipeDesc.setEnabled(false);
+                recipePrepTime.setEnabled(false);
+                recipeCalories.setEnabled(false);
+                recipeUrl.setEnabled(false);
+                favouriteSwitch.setEnabled(false);
+                addIngredientButton.setEnabled(false);
+                addIngredientButton.setVisibility(View.GONE);
+                cancel.setVisibility(View.GONE);
+                cancel.setEnabled(false);
+            }
+        });
         final FloatingActionButton cook = findViewById(R.id.cook);
 
         /* Defines the recycler view(s) here, in order to populate it with ingredients the user doesn't have first,
@@ -252,6 +278,14 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     for (Ingredient ing : ingList) {
                         // Remove from db for each ingredient.
                         mDb.execSQL("UPDATE Ingredients SET num = num-'" + ing.getNumber() + "' WHERE name = '" + ing.getName() + "'");
+                    }
+                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+// Vibrate for 500 milliseconds
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        v.vibrate(VibrationEffect.createOneShot(250, VibrationEffect.DEFAULT_AMPLITUDE));
+                    } else {
+                        //deprecated in API 26
+                        v.vibrate(250);
                     }
                     Toast.makeText(ViewRecipeActivity.this, "Nice Meal! Ingredients Removed.", Toast.LENGTH_SHORT).show();
                     finish(); // Should return
