@@ -2,10 +2,12 @@ package com.csed.foodtracker;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,11 +16,10 @@ import android.os.Vibrator;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
@@ -30,11 +31,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -54,6 +55,15 @@ public class ViewRecipeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         mDBHelper = new DatabaseHelper(this);
+        final String themeVal;
+        SharedPreferences themePrefs;
+        themePrefs = getSharedPreferences("com.csed.foodtracker.theme", 0);
+        themeVal = themePrefs.getString("theme", "1");
+        if (themeVal.equals("1")) {
+            setTheme(R.style.AppTheme);
+        } else {
+            setTheme(R.style.AppThemeDark);
+        }
 
         try {
             mDBHelper.updateDataBase();
@@ -68,15 +78,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
             throw mSQLException;
         }
         super.onCreate(savedInstanceState);
-/*        String themeVal;
-        SharedPreferences themePrefs;
-        themePrefs = getSharedPreferences("com.csed.foodtracker.theme", 0);
-        themeVal = themePrefs.getString("theme", "1");
-        if (themeVal == "1") {
-            setTheme(R.style.AppTheme);
-        } else {
-            setTheme(R.style.AppThemeDark);
-        }*/
+
         setContentView(R.layout.activity_view_recipe);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -113,13 +115,35 @@ public class ViewRecipeActivity extends AppCompatActivity {
         addIngredientButton.setEnabled(false);
         addIngredientButton.setVisibility(View.GONE);
         final FloatingActionButton cancel = findViewById(R.id.cancel);
+        final Drawable notFav = ResourcesCompat.getDrawable(getResources(), R.drawable.not_favourite, null);
+        final Drawable notFavDark = ResourcesCompat.getDrawable(getResources(), R.drawable.not_favourite_dark, null);
+        final Drawable fav = ResourcesCompat.getDrawable(getResources(), R.drawable.favourite, null);
+
+        favouriteSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    favouriteSwitch.setThumbDrawable(fav);
+                } else {
+                    if (themeVal.equals("1")) {
+                        favouriteSwitch.setThumbDrawable(notFav);
+                    } else {
+                        favouriteSwitch.setThumbDrawable(notFavDark);
+                    }
+                }
+            }
+        });
 
         if (recipe.getFavourite() == 1) {
             favouriteSwitch.setChecked(true);
+            favouriteSwitch.setThumbDrawable(fav);
         } else {
             favouriteSwitch.setChecked(false);
+            if (themeVal.equals("1")) {
+                favouriteSwitch.setThumbDrawable(notFav);
+            } else {
+                favouriteSwitch.setThumbDrawable(notFavDark);
+            }
         }
-
 
 
         Cursor cursor = mDb.rawQuery("SELECT Ingredients.name, RecipeIngredients.measurement" +
@@ -139,7 +163,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
             ingList.add(ingredient);
             cursor.moveToNext();
         }
-
+        cursor.close();
         RecyclerView recipeListView = findViewById(R.id.list_ingredients);
 
 
@@ -176,29 +200,33 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     cancel.setVisibility(View.VISIBLE);
                     cancel.setEnabled(true);
                 }
-                else{
-                    int mode = 0;
-                    boolean favourite = favouriteSwitch.isChecked();
-                    if (favourite) {
-                        mode = 1;
+                else {
+                    if (ingList.size() > 0) {
+                        int mode = 0;
+                        boolean favourite = favouriteSwitch.isChecked();
+                        if (favourite) {
+                            mode = 1;
+                        }
+                        mDb.execSQL("UPDATE Recipes SET name = '" + recipeName.getText() + "', description = '"
+                                + recipeDesc.getText() + "', prep_time = '" + recipePrepTime.getText() + "', calories = "
+                                + recipeCalories.getText() + ", url = '" + recipeUrl.getText() + "', favourite = '" + mode + "' WHERE recipe_id = "
+                                + recipe.getId());
+                        Toast.makeText(ViewRecipeActivity.this, "Recipe Updated!", Toast.LENGTH_SHORT).show();
+                        fab.setImageResource(R.drawable.ic_edit);
+                        recipeName.setEnabled(false);
+                        recipeDesc.setEnabled(false);
+                        recipePrepTime.setEnabled(false);
+                        recipeCalories.setEnabled(false);
+                        recipeUrl.setEnabled(false);
+                        favouriteSwitch.setEnabled(false);
+                        addIngredientButton.setEnabled(false);
+                        addIngredientButton.setVisibility(View.GONE);
+                        cancel.setVisibility(View.GONE);
+                        cancel.setEnabled(false);
+                        finish();
+                    } else {
+                        Toast.makeText(ViewRecipeActivity.this, "A Recipe Needs Ingredients!", Toast.LENGTH_SHORT).show();
                     }
-                    mDb.execSQL("UPDATE Recipes SET name = '" + recipeName.getText() + "', description = '"
-                            + recipeDesc.getText() + "', prep_time = '" + recipePrepTime.getText() + "', calories = "
-                            + recipeCalories.getText() + ", url = '" + recipeUrl.getText() + "', favourite = '"+ mode + "' WHERE recipe_id = "
-                            + recipe.getId() + ";");
-                    Toast.makeText(ViewRecipeActivity.this, "Recipe Updated!", Toast.LENGTH_SHORT).show();
-                    fab.setImageResource(R.drawable.ic_edit);
-                    recipeName.setEnabled(false);
-                    recipeDesc.setEnabled(false);
-                    recipePrepTime.setEnabled(false);
-                    recipeCalories.setEnabled(false);
-                    recipeUrl.setEnabled(false);
-                    favouriteSwitch.setEnabled(false);
-                    addIngredientButton.setEnabled(false);
-                    addIngredientButton.setVisibility(View.GONE);
-                    cancel.setVisibility(View.GONE);
-                    cancel.setEnabled(false);
-                    finish();
                 }
             }
         });
@@ -338,9 +366,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 //Allow text boxes to be clicked on
                 popup.setFocusable(true);
                 //Small UI thing that makes the popup stick out
-                if(Build.VERSION.SDK_INT>=21){
-                    popup.setElevation(5.0f);
-                }
+                popup.setElevation(5.0f);
 
                 //Spinner object (Dropdown menu)
                 final Spinner spInventory = (Spinner) popupView.findViewById(R.id.spinner_inventory);
@@ -377,36 +403,69 @@ public class ViewRecipeActivity extends AppCompatActivity {
                         //New Ingredient object
                         Ingredient ingredient = new Ingredient();
                         //Assign attributes
-                        ingredient.setName(textName.getText().toString());
-                        ingredient.setNumber(textAmount.getText().toString());
+                        String name = textName.getText().toString();
+                        String newName = name.substring(0, 1).toUpperCase() + name.substring(1); // Should capitalise the first letter
+                        ingredient.setName(newName);
+                        String amount = textAmount.getText().toString();
+                        if (amount.equals("")) {
+                            amount = "1";
+                        }
+                        try {
+                            Integer.parseInt(amount);
+                        } catch (NumberFormatException e) {
+                            amount = "2147483647";
+                        }
+                        ingredient.setNumber(amount);
                         //Today's date + 3 days
                         boolean found = false;
                         for (Ingredient ing : ingList) {
-                            if (ing.getName().equals(textName.getText().toString())) {
+                            if (ing.getName().equals(newName)) {
                                 found = true;
                                 break;
                             }
                         }
                         if (!found) {
-                            mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('" + textName.getText().toString() + "','0000-03-00','0')");
+                            mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('" + newName + "','0000-03-00','0')");
                         }
                         Cursor cursor = mDb.rawQuery("SELECT ing_id FROM Ingredients WHERE name='"+ingredient.getName()+"'",null);
                         cursor.moveToPosition(0);
                         int count = cursor.getInt(cursor.getColumnIndex("ing_id"));
                         ingredient.setId(count);
-                        System.out.println(count);
-                        recipe.addIngredient(ingredient);
-                        ingList.add(ingredient);
-
-                        mDb.execSQL("INSERT INTO 'RecipeIngredients' (recipe_id,ing_id,measurement,detail) " +
-                                "VALUES ('"+recipe.getId()+"','"+ingredient.getId()+"','"+textAmount.getText()+"','detail')");
+                        boolean find = false;
+                        int d = -1;
+                        for (int i = 0; i < ingList.size(); i ++) {
+                            Ingredient ing = ingList.get(i);
+                            if (ing.getName().equals(ingredient.getName())) {
+                                find = true;
+                                d = i;
+                                break;
+                            }
+                        }
+                        if (find) {
+                            int newCount;
+                            try {
+                                int oldCount = Integer.parseInt(ingList.get(d).getNumber());
+                                newCount = oldCount + Integer.parseInt(ingredient.getNumber());
+                            } catch (NumberFormatException e) {
+                                newCount = 2147483647; // Max number to stop overflow
+                            }
+                            ingList.get(d).setNumber(String.valueOf(newCount));
+                            mDb.execSQL("UPDATE 'RecipeIngredients' SET measurement = '"+String.valueOf(newCount)+"' WHERE ing_id = '"+ingredient.getId()+"'");
+                            ingredientAdapter.notifyItemChanged(d);
+                        } else {
+                            recipe.addIngredient(ingredient);
+                            ingList.add(ingredient);
+                            mDb.execSQL("INSERT INTO 'RecipeIngredients' (recipe_id,ing_id,measurement,detail) " +
+                                    "VALUES ('"+recipe.getId()+"','"+ingredient.getId()+"','"+textAmount.getText()+"','detail')");
 //                                Insert into 'Ingredients'(name, best_before, num) VALUES('" + textName.getText().toString() + "','0000-03-00','0')");
+                            ingredientAdapter.notifyItemInserted(ingList.size());
+                        }
 
                         //Add to the list
                         //Notifying the adapter means the list UI can be updated to show the new ingredient
-                        ingredientAdapter.notifyItemInserted(ingList.size());
                         //Popup can now disappear
                         popup.dismiss();
+                        cursor.close();
                     }
                 });
                 //Show popup at the middle of the screen

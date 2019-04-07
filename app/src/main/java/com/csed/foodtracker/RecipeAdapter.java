@@ -23,6 +23,7 @@ import java.util.List;
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder> {
     public Resources res;
     MainActivity context;
+    String themeVal;
 
     private static ClickListener clickListener;
 
@@ -56,10 +57,11 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
 
     private List<Recipe> mRecipes;
 
-    public RecipeAdapter(List<Recipe> recipes, Resources re, MainActivity con){
+    public RecipeAdapter(List<Recipe> recipes, Resources re, MainActivity con, String theme){
         mRecipes = recipes;
         res = re;
         context = con;
+        themeVal = theme;
     }
 
     // Usually involves inflating a layout from XML and returning the holder
@@ -101,9 +103,16 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
         textView.setText(recipe.getName());
         final Button favouriteButton = viewHolder.favouriteButton;
         final Drawable notFav = ResourcesCompat.getDrawable(res, R.drawable.not_favourite, null);
+        final Drawable notFavDark =  ResourcesCompat.getDrawable(res, R.drawable.not_favourite_dark, null);
         final Drawable fav = ResourcesCompat.getDrawable(res, R.drawable.favourite, null);
         if (recipe.getFavourite() == 1) {
             favouriteButton.setBackground(fav);
+        } else {
+            if (themeVal.equals("1")) {
+                favouriteButton.setBackground(notFav);
+            } else {
+                favouriteButton.setBackground(notFavDark);
+            }
         }
         favouriteButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -114,7 +123,11 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
                     Toast.makeText(context.getApplicationContext(),"Added "+recipe.getName()+" to favourites!",Toast.LENGTH_SHORT).show();
                     context.initialiseListUI();
                 } else {
-                    favouriteButton.setBackground(notFav);
+                    if (themeVal.equals("1")) {
+                        favouriteButton.setBackground(notFav);
+                    } else {
+                        favouriteButton.setBackground(notFavDark);
+                    }
                     recipe.setFavourite(0);
                     mDb.execSQL("UPDATE Recipes SET favourite = 0 WHERE name = '"+recipe.getName()+"'");
                     Toast.makeText(context.getApplicationContext(),"Removed "+recipe.getName()+" from favourites!",Toast.LENGTH_SHORT).show();

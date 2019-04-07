@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.DividerItemDecoration;
@@ -64,18 +65,15 @@ public class MainActivity extends AppCompatActivity
         } catch (SQLException mSQLException) {
             throw mSQLException;
         }
-
-        super.onCreate(savedInstanceState);
-
-        themePrefs = getSharedPreferences("com.csed.foodtracker.theme", Context.MODE_PRIVATE);
+        themePrefs = getSharedPreferences("com.csed.foodtracker.theme", 0);
         themeVal = themePrefs.getString("theme", "1");
-/*
         if (themeVal.equals("1")) {
             setTheme(R.style.AppTheme);
         } else {
             setTheme(R.style.AppThemeDark);
         }
-*/
+        super.onCreate(savedInstanceState);
+
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -102,6 +100,10 @@ public class MainActivity extends AppCompatActivity
         floatingActionButton1 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item1);
         floatingActionButton2 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item2);
         floatingActionButton3 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item3);
+        floatingActionButton1.setColorNormal(Color.parseColor("#D81A60"));
+        floatingActionButton2.setColorNormal(Color.parseColor("#D81A60"));
+        floatingActionButton3.setColorNormal(Color.parseColor("#D81A60"));
+
 
 
         floatingActionButton1.setOnClickListener(new View.OnClickListener() {
@@ -267,7 +269,7 @@ public class MainActivity extends AppCompatActivity
         final List<Recipe> newRecipeList = new ArrayList<>(); // This is the list that ends up being used for recipeListView
         if (filterMode == 0) { // filterMode 0 is all option
             recipeList.sort(new RecipeComparitor());
-            recipeAdapter = new RecipeAdapter(recipeList, getResources(), this); // Ordered one instead
+            recipeAdapter = new RecipeAdapter(recipeList, getResources(), this, themeVal); // Ordered one instead
         } else {
             try {
                 for (int i = 0; i < 100; i++) {
@@ -326,7 +328,6 @@ public class MainActivity extends AppCompatActivity
                             }
                             if (ing == curr) {
                                 actCount++;
-                                System.out.println(actCount == ingCount);
                             }
                             if (ingCount == actCount) {
                                 for (Recipe r : recipeList) {
@@ -345,7 +346,7 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(MainActivity.this, "Finished Loading", Toast.LENGTH_SHORT).show();
             }
             newRecipeList.sort(new RecipeComparitor());
-            recipeAdapter = new RecipeAdapter(newRecipeList, getResources(), this); // Defines the adapter with the newRecipeList
+            recipeAdapter = new RecipeAdapter(newRecipeList, getResources(), this, themeVal); // Defines the adapter with the newRecipeList
         }
 
         //Setting the list adapter
@@ -399,12 +400,14 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.action_theme:
                 SharedPreferences.Editor themeEditor = themePrefs.edit();
-                if (themeVal.equals("1")) {
+                if (themeVal.equals("1")) { //TODO: Make this reload the application somehow
                     themeEditor.putString("theme", "0").apply();
+                    Toast.makeText(MainActivity.this, "Switched to dark theme", Toast.LENGTH_SHORT).show();
                 } else {
                     themeEditor.putString("theme", "1").apply();
+                    Toast.makeText(MainActivity.this, "Switched to light theme", Toast.LENGTH_SHORT).show();
                 }
-//                recreate();
+                recreate();
                 // User chose the "Settings" item, show the app settings UI...
                 return true;
             case R.id.action_resetDb:
@@ -419,14 +422,20 @@ public class MainActivity extends AppCompatActivity
                 mDb.execSQL("INSERT INTO 'main'.'Recipes' ('recipe_id', 'name', 'description', 'image', 'prep_time', 'calories', 'url', 'favourite') VALUES ('3', 'Bacon Pasta', 'Cook pasta in pot and cook bacon in pan, then put together.', 'baconPasta.jpg', '00:13', '100', 'https://www.google.com/', '0');");
                 mDb.execSQL("INSERT INTO 'main'.'Recipes' ('recipe_id', 'name', 'description', 'image', 'prep_time', 'calories', 'url', 'favourite') VALUES ('4', 'Pizza', 'Cook pizza in pizza and cook pizza in pizza, then put pizza.', 'pizza.jpg', '55:55', '555', 'https://www.help.me/', '0');");
                 mDb.execSQL("INSERT INTO 'main'.'Recipes' ('recipe_id', 'name', 'description', 'image', 'prep_time', 'calories', 'url', 'favourite') VALUES ('5', 'Toast', 'Put bread in the toaster. Set the dial to prefered setting. Wait for it to pop, then add butter and chicken to taste.', 'toast.jpg', '01:00', '1', 'https://www.toast.chicken/', '0');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('1', 'Onion', '0000-03-00', '2');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('5', 'Carrot', '0000-03-00', '5');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('1', 'Onions', '0000-03-00', '2');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('5', 'Carrots', '0000-03-00', '5');");
                 mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('6', 'Pasta', '0000-03-00', '400');");
                 mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('7', 'Pesto', '0000-03-00', '150');");
                 mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('8', 'Bread', '0000-03-00', '15');");
                 mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('9', 'Bacon', '0000-03-00', '8');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('10', 'Pizza', '0000-03-00', '1');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('10', 'Pizzas', '0000-03-00', '1');");
                 mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('11', 'Cheese', '0000-01-00', '50');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('12', 'Chicken', '0000-01-00', '0');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('13', 'Sausages', '0000-11-00', '0');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('14', 'Milk', '0000-02-00', '0');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('15', 'Celery', '0000-01-00', '0');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('16', 'Mince', '0000-01-00', '0');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num') VALUES ('17', 'Ham', '0000-01-00', '0');");
                 mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('1', '1', '1', '1.0', 'Peeled and chopped');");
                 mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('2', '1', '6', '100.0', 'Just put it in');");
                 mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('3', '2', '6', '200.0', 'Just put it in');");
@@ -437,6 +446,7 @@ public class MainActivity extends AppCompatActivity
                 mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('8', '5', '8', '2.0', 'Toast');");
                 mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('9', '2', '11', '3.0', 'Sprinkle it on top');");
                 Toast.makeText(MainActivity.this, "Reset Database", Toast.LENGTH_SHORT).show();
+                recreate();
 
                 return true;
             case R.id.action_filter:

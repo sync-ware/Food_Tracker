@@ -2,6 +2,10 @@ package com.csed.foodtracker;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
@@ -63,6 +67,20 @@ public class UploadRecieptActivity extends AppCompatActivity {
     }
 
     private void extractText(Bitmap bitmap){
+        DatabaseHelper mDBHelper = new DatabaseHelper(this);
+        SQLiteDatabase mDb;
+        try {
+            mDBHelper.updateDataBase();
+        } catch (IOException mIOException) {
+            throw new Error("UnableToUpdateDatabase");
+        }
+
+        try {
+            mDb = mDBHelper.getWritableDatabase();
+
+        } catch (SQLException mSQLException) {
+            throw mSQLException;
+        }
         TextRecognizer textRecognizer = new TextRecognizer.Builder(getApplicationContext()).build();
         Frame imageFrame = new Frame.Builder()
                 .setBitmap(bitmap)                 // your image bitmap
@@ -81,7 +99,16 @@ public class UploadRecieptActivity extends AppCompatActivity {
         String string = imageText.toString();
         tv.setText(string);
         tv.setVisibility(View.GONE);
-        String words[] = {"chicken","sausages","carrots","milk","celery","mince","ham"};
+        Cursor cursor = mDb.rawQuery("SELECT name FROM Ingredients",null);
+        List<String> words = new ArrayList<>();
+        cursor.moveToPosition(0);
+        //Keep looping until you reach the last row
+        while (cursor.getPosition() < cursor.getCount()){
+            String name = cursor.getString(cursor.getColumnIndex("name"));
+            words.add(name.toLowerCase());
+            cursor.moveToNext();
+        }
+        cursor.close();
         List<String> takenIngs = new ArrayList<>();
         for (String word: string.split(" ")) {
             for (String validWord: words) {
@@ -96,8 +123,9 @@ public class UploadRecieptActivity extends AppCompatActivity {
     }
 
     private void addItem(String name) {
+        String newName = name.substring(0, 1).toUpperCase() + name.substring(1); // Should capitalise the first letter
         Ingredient i = new Ingredient();
-        i.setName(name);
+        i.setName(newName);
         ingredientList.add(i);
     }
 
@@ -159,16 +187,17 @@ public class UploadRecieptActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-/*        String themeVal;
+        String themeVal;
         SharedPreferences themePrefs;
         themePrefs = getSharedPreferences("com.csed.foodtracker.theme", 0);
         themeVal = themePrefs.getString("theme", "1");
-        if (themeVal == "1") {
+        if (themeVal.equals("1")) {
             setTheme(R.style.AppTheme);
         } else {
             setTheme(R.style.AppThemeDark);
-        }*/
+        }
+        super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_upload_reciept);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

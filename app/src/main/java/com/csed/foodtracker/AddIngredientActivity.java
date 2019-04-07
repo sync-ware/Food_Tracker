@@ -1,5 +1,6 @@
 package com.csed.foodtracker;
 
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -24,16 +25,17 @@ public class AddIngredientActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-/*        String themeVal;
+        String themeVal;
         SharedPreferences themePrefs;
         themePrefs = getSharedPreferences("com.csed.foodtracker.theme", 0);
         themeVal = themePrefs.getString("theme", "1");
-        if (themeVal == "1") {
+        if (themeVal.equals("1")) {
             setTheme(R.style.AppTheme);
         } else {
             setTheme(R.style.AppThemeDark);
-        }*/
+        }
+        super.onCreate(savedInstanceState);
+
 
         setContentView(R.layout.activity_add_ingredient);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -68,17 +70,20 @@ public class AddIngredientActivity extends AppCompatActivity {
                     if (textAmount.getText().toString().equals("")) {
                         textAmount.setText("0");
                     }
+                    String name = textName.getText().toString();
+                    String newName = name.substring(0, 1).toUpperCase() + name.substring(1); // Should capitalise the first letter
+
                     Snackbar.make(view, "Ingredient Added", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
-                    Cursor cursor = mDb.rawQuery("SELECT num FROM Ingredients WHERE name='" + textName.getText() + "'", null);
+                    Cursor cursor = mDb.rawQuery("SELECT num FROM Ingredients WHERE name='" + newName + "'", null);
                     if (cursor.getCount() == 0) { // Insert if not exists
-                        mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('" + textName.getText().toString() + "','0000-03-00','" + textAmount.getText().toString() + "')");
+                        mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('" + newName + "','0000-03-00','" + textAmount.getText().toString() + "')");
                     } else {
                         cursor.moveToPosition(0);
                         int count = cursor.getInt(cursor.getColumnIndex("num")); // If this returns anything then it's fine
                         cursor.close();
                         int value = count + Integer.parseInt(textAmount.getText().toString());
-                        mDb.execSQL("UPDATE Ingredients SET num =" + value + " WHERE name = '" + textName.getText().toString() + "'"); // Should increase the value
+                        mDb.execSQL("UPDATE Ingredients SET num =" + value + " WHERE name = '" + newName + "'"); // Should increase the value
                     }
                     finish();
                 } else {

@@ -1,5 +1,6 @@
 package com.csed.foodtracker;
 
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -35,7 +36,15 @@ public class AddRecipeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        String themeVal;
+        SharedPreferences themePrefs;
+        themePrefs = getSharedPreferences("com.csed.foodtracker.theme", 0);
+        themeVal = themePrefs.getString("theme", "1");
+        if (themeVal.equals("1")) {
+            setTheme(R.style.AppTheme);
+        } else {
+            setTheme(R.style.AppThemeDark);
+        }
         mDBHelper = new DatabaseHelper(this);
 
         try {
@@ -53,15 +62,7 @@ public class AddRecipeActivity extends AppCompatActivity {
 
 
         super.onCreate(savedInstanceState);
-/*        String themeVal;
-        SharedPreferences themePrefs;
-        themePrefs = getSharedPreferences("com.csed.foodtracker.theme", 0);
-        themeVal = themePrefs.getString("theme", "1");
-        if (themeVal == "1") {
-            setTheme(R.style.AppTheme);
-        } else {
-            setTheme(R.style.AppThemeDark);
-        }*/
+
         setContentView(R.layout.activity_add_recipe);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -95,33 +96,39 @@ public class AddRecipeActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Insert recipe to the respective table
-                mDb.execSQL("Insert into 'Recipes'(name, description, image, prep_time, calories, url) VALUES('"
-                        +textName.getText().toString()+"','"
-                        +description.getText().toString()+"','"
-                        +textName.getText().toString()+".jpg','"
-                        +prepTime.getText().toString()+"','"
-                        +calories.getText().toString()+"','"
-                        +url.getText().toString()+"')");
+                if (recipe.getIngredients().size() > 0) {
+                    // Insert recipe to the respective table
+                    String name = textName.getText().toString();
+                    String newName = name.substring(0, 1).toUpperCase() + name.substring(1); // Should capitalise the first letter
 
-                recipe.setName(textName.getText().toString());
+                    mDb.execSQL("Insert into 'Recipes'(name, description, image, prep_time, calories, url) VALUES('"
+                            + newName + "','"
+                            + description.getText().toString() + "','"
+                            + newName + ".jpg','"
+                            + prepTime.getText().toString() + "','"
+                            + calories.getText().toString() + "','"
+                            + url.getText().toString() + "')");
+                    recipe.setName(newName);
 
-                Cursor cursor = mDb.rawQuery("SELECT recipe_id FROM Recipes WHERE name='"+recipe.getName()+"'",null);
-                cursor.moveToPosition(0);
-                int count = cursor.getInt(cursor.getColumnIndex("recipe_id"));
-                recipe.setId(count);
-                // Add each item in listIngredietns to the recipeingredients table
-                for (Ingredient ing: recipe.getIngredients()) {
+                    Cursor cursor = mDb.rawQuery("SELECT recipe_id FROM Recipes WHERE name='" + recipe.getName() + "'", null);
+                    cursor.moveToPosition(0);
+                    int count = cursor.getInt(cursor.getColumnIndex("recipe_id"));
+                    recipe.setId(count);
+                    // Add each item in listIngredietns to the recipeingredients table
+                    for (Ingredient ing : recipe.getIngredients()) {
                         mDb.execSQL("Insert into 'RecipeIngredients'(recipe_id, ing_id, measurement, detail)VALUES('"
-                                +recipe.getId()+"','"
-                                +ing.getId()+"','"
-                                +ing.getNumber()+"','detail')");
+                                + recipe.getId() + "','"
+                                + ing.getId() + "','"
+                                + ing.getNumber() + "','detail')");
+                    }
+                    cursor.close();
+                    Toast.makeText(view.getContext(), "Recipe Added", Toast.LENGTH_SHORT).show();
+
+                    //Go back to MainActivity
+                    finish();
+                } else {
+                    Toast.makeText(AddRecipeActivity.this, "Recipes Need Ingredients!", Toast.LENGTH_SHORT).show();
                 }
-
-                Toast.makeText(view.getContext(), "Recipe Added", Toast.LENGTH_SHORT).show();
-
-                //Go back to MainActivity
-                finish();
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -133,7 +140,7 @@ public class AddRecipeActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 //inflater pulls a layout resource
-                LayoutInflater inflater = (LayoutInflater) getApplicationContext().
+                final LayoutInflater inflater = (LayoutInflater) getApplicationContext().
                         getSystemService(LAYOUT_INFLATER_SERVICE);
                 //Assigning the layout/UI to the popup window
                 View popupView = inflater.inflate(R.layout.popup_add_ingredient,null);
@@ -172,7 +179,6 @@ public class AddRecipeActivity extends AppCompatActivity {
                     @Override
                     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                         textName.setText(adapterView.getItemAtPosition(i).toString());
-
                     }
 
                     //Currently does nothing when nothing is selected
@@ -187,32 +193,73 @@ public class AddRecipeActivity extends AppCompatActivity {
                         //New Ingredient object
                         Ingredient ingredient = new Ingredient();
                         //Assign attributes
-                        ingredient.setName(textName.getText().toString());
-                        ingredient.setNumber(textAmount.getText().toString());
+                        String name = textName.getText().toString();
+                        String newName = name.substring(0, 1).toUpperCase() + name.substring(1); // Should capitalise the first letter
+                        ingredient.setName(newName);
+                        String amount = textAmount.getText().toString();
+                        if (amount.equals("")) {
+                            amount = "1";
+                        }
+                        try {
+                            Integer.parseInt(amount);
+                        } catch (NumberFormatException e) {
+                            amount = "2147483647";
+                        }
+                        ingredient.setNumber(amount);
                         //Today's date + 3 days
                         boolean found = false;
                         for (Ingredient ing : ingredientList) {
-                            if (ing.getName().equals(textName.getText().toString())) {
+                            if (ing.getName().equals(newName)) {
                                 found = true;
                                 break;
                             }
                         }
                         if (!found) {
-                            mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('" + textName.getText().toString() + "','0000-03-00','0')");
+                            mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('" + newName + "','0000-03-00','0')");
                         }
                         Cursor cursor = mDb.rawQuery("SELECT ing_id FROM Ingredients WHERE name='"+ingredient.getName()+"'",null);
                         cursor.moveToPosition(0);
                         int count = cursor.getInt(cursor.getColumnIndex("ing_id"));
                         ingredient.setId(count);
-                        System.out.println(count);
-                        recipe.addIngredient(ingredient);
-
+                        boolean find = false;
+                        int c = -1;
+                        int d = -1;
+                        for (int i = 0; i < recipe.getIngredients().size(); i ++) {
+                            Ingredient ing = recipe.getIngredients().get(i);
+                            if (ing.getName().equals(ingredient.getName())) {
+                                find = true;
+                                c = i;
+                                break;
+                            }
+                        }
+                        for (int i = 0; i < recipeIngredientList.size(); i ++) {
+                            Ingredient ing = recipeIngredientList.get(i);
+                            if (ing.getName().equals(ingredient.getName())) {
+                                find = true;
+                                d = i;
+                            }
+                        }
+                        if (find) {
+                            int newCount;
+                            try {
+                                int oldCount = Integer.parseInt(recipe.getIngredients().get(c).getNumber());
+                                newCount = oldCount + Integer.parseInt(ingredient.getNumber());
+                            } catch (NumberFormatException e) {
+                                newCount = 2147483647; // Max number to stop overflow
+                            }
+                            recipe.getIngredients().get(c).setNumber(String.valueOf(newCount));
+                            recipeIngredientList.get(d).setNumber(String.valueOf(newCount));
+                            ingAdapter.notifyItemChanged(d);
+                        } else {
+                            recipe.addIngredient(ingredient);
+                            recipeIngredientList.add(ingredient);
+                            ingAdapter.notifyItemInserted(recipeIngredientList.size());
+                        }
                         //Add to the list
-                        recipeIngredientList.add(ingredient);
                         //Notifying the adapter means the list UI can be updated to show the new ingredient
-                        ingAdapter.notifyItemInserted(recipeIngredientList.size());
                         //Popup can now disappear
                         popup.dismiss();
+                        cursor.close();
                     }
                 });
                 //Show popup at the middle of the screen
