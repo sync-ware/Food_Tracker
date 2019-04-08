@@ -13,6 +13,7 @@ public class Ingredient implements Serializable {
     private String name;
     private String bestBefore;
     private String number;
+    private String units;
 
     public Ingredient(){}
 
@@ -22,6 +23,10 @@ public class Ingredient implements Serializable {
 
     public void setName(String name){
         this.name = name;
+    }
+
+    public void setUnits(String units){
+        this.units = units;
     }
 
     public void setBestBefore(String bestBefore){
@@ -46,6 +51,10 @@ public class Ingredient implements Serializable {
 
     public String getNumber(){
         return number;
+    }
+
+    public String getUnits(){
+        return units;
     }
 
     @Override

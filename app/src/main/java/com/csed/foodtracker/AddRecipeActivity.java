@@ -1,5 +1,6 @@
 package com.csed.foodtracker;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -132,7 +133,7 @@ public class AddRecipeActivity extends AppCompatActivity {
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        final Context context = this;
         //Add Ingredient button that generates a small popup menu
         Button addIngredientButton = (Button) findViewById(R.id.button_add_ingredient);
         addIngredientButton.setOnClickListener(new View.OnClickListener() {
@@ -154,9 +155,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                 //Allow text boxes to be clicked on
                 popup.setFocusable(true);
                 //Small UI thing that makes the popup stick out
-                if(Build.VERSION.SDK_INT>=21){
-                    popup.setElevation(5.0f);
-                }
+                popup.setElevation(5.0f);
 
                 //Spinner object (Dropdown menu)
                 final Spinner spInventory = (Spinner) popupView.findViewById(R.id.spinner_inventory);
@@ -172,6 +171,14 @@ public class AddRecipeActivity extends AppCompatActivity {
                 //Initialise UI elements for the popup
                 final TextInputEditText textName = (TextInputEditText) popupView.findViewById(R.id.text_name);
                 final EditText textAmount = (EditText) popupView.findViewById(R.id.text_number);
+                final Spinner spinner = (Spinner) popupView.findViewById(R.id.unit_spinner);
+                // Create an ArrayAdapter using the string array and a default spinner layout
+                ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(context,
+                        R.array.unit_options, android.R.layout.simple_spinner_item);
+                // Specify the layout to use when the list of choices appears
+                adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                // Apply the adapter to the spinner
+                spinner.setAdapter(adapter1);
                 Button confirmIngredientButton = (Button) popupView.findViewById(R.id.button_confirm_ingredient);
 
                 //When an item is clicked on the spinner it adds the name to the name text box
@@ -197,6 +204,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                         String newName = name.substring(0, 1).toUpperCase() + name.substring(1); // Should capitalise the first letter
                         ingredient.setName(newName);
                         String amount = textAmount.getText().toString();
+                        String unit = spinner.getSelectedItem().toString();
                         if (amount.equals("")) {
                             amount = "1";
                         }
@@ -215,10 +223,11 @@ public class AddRecipeActivity extends AppCompatActivity {
                             }
                         }
                         if (!found) {
-                            mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('" + newName + "','0000-03-00','0')");
+                            mDb.execSQL("Insert into 'Ingredients'(name, best_before, num, units) VALUES('" + newName + "','0000-03-00','0','"+unit+"')");
                         }
                         Cursor cursor = mDb.rawQuery("SELECT ing_id FROM Ingredients WHERE name='"+ingredient.getName()+"'",null);
                         cursor.moveToPosition(0);
+                        ingredient.setUnits(unit);
                         int count = cursor.getInt(cursor.getColumnIndex("ing_id"));
                         ingredient.setId(count);
                         boolean find = false;
@@ -268,5 +277,4 @@ public class AddRecipeActivity extends AppCompatActivity {
         });
 
     }
-//TODO: Make sure they can't add a recipe with no ingredients
 }

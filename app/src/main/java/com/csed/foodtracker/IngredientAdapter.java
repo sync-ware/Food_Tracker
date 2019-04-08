@@ -50,7 +50,21 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.Vi
 
         // Set item views based on your views and data model
         TextView textView = viewHolder.nameTextView;
-        textView.setText(Ingredient.getNumber() + " " + Ingredient.getName());
+        //TODO: Needs to be slightly different based on units
+        StringBuilder setText = new StringBuilder(Ingredient.getNumber());
+        if (Ingredient.getUnits().equals("g") || Ingredient.getUnits().equals("ml")) {
+            setText.append(Ingredient.getUnits());
+            setText.append(" of ");
+        } else {
+            setText.append(" ");
+            setText.append(Ingredient.getUnits());
+            setText.append(" ");
+            if (!Ingredient.getUnits().equals("Whole")) {
+                setText.append("of ");
+            }
+        }
+        setText.append(Ingredient.getName());
+        textView.setText(setText.toString());
 
     }
 

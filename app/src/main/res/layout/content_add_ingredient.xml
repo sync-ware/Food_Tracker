@@ -27,6 +27,7 @@
         android:layout_height="wrap_content">
 
         <EditText
+            android:layout_marginTop="15dp"
             android:id="@+id/input_amount"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -37,5 +38,12 @@
 
     </android.support.design.widget.TextInputLayout>
 
+    <Spinner
+        android:layout_marginTop="15dp"
+        android:id="@+id/unit_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown"
+        android:theme="@style/ThemeOverlay.AppCompat.Light" />
 
 </LinearLayout>

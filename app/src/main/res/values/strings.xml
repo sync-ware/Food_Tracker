@@ -14,6 +14,13 @@
     <string name="button_use_camera">Use Camera</string>
     <string name="button_add_photo">Add Photo</string>
     <string name="button_add_ingredients">Add Ingredients</string>
+    <string-array name="unit_options">
+        <item>g</item>
+        <item>Whole</item>
+        <item>Slices</item>
+        <item>Pieces</item>
+        <item>ml</item>
+    </string-array>
 
 
 

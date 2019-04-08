@@ -146,7 +146,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
         }
 
 
-        Cursor cursor = mDb.rawQuery("SELECT Ingredients.name, RecipeIngredients.measurement" +
+        Cursor cursor = mDb.rawQuery("SELECT Ingredients.name, RecipeIngredients.measurement, Ingredients.units" +
                 " FROM Ingredients INNER JOIN RecipeIngredients ON" +
                 " RecipeIngredients.ing_id = Ingredients.ing_id WHERE RecipeIngredients.recipe_id="+recipe.getId()
                 ,null);
@@ -157,9 +157,11 @@ public class ViewRecipeActivity extends AppCompatActivity {
         while (cursor.getPosition() < cursor.getCount()){
             String name = cursor.getString(cursor.getColumnIndex("name"));
             String measurement = cursor.getString(cursor.getColumnIndex("measurement"));
+            String unit = cursor.getString(cursor.getColumnIndex("units"));
             Ingredient ingredient = new Ingredient();
             ingredient.setName(name);
             ingredient.setNumber(measurement);
+            ingredient.setUnits(unit);
             ingList.add(ingredient);
             cursor.moveToNext();
         }
@@ -344,6 +346,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     DividerItemDecoration.VERTICAL));
             cook.setVisibility(View.INVISIBLE);
         }
+        final Context context = this;
 
 
         //Add Ingredient button that generates a small popup menu
@@ -367,7 +370,6 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 popup.setFocusable(true);
                 //Small UI thing that makes the popup stick out
                 popup.setElevation(5.0f);
-
                 //Spinner object (Dropdown menu)
                 final Spinner spInventory = (Spinner) popupView.findViewById(R.id.spinner_inventory);
                 /*Giving the spinner a list of ingredients the user currently has.
@@ -383,7 +385,14 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 final TextInputEditText textName = (TextInputEditText) popupView.findViewById(R.id.text_name);
                 final EditText textAmount = (EditText) popupView.findViewById(R.id.text_number);
                 Button confirmIngredientButton = (Button) popupView.findViewById(R.id.button_confirm_ingredient);
-
+                final Spinner spinner = (Spinner) popupView.findViewById(R.id.unit_spinner);
+                // Create an ArrayAdapter using the string array and a default spinner layout
+                ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(context,
+                        R.array.unit_options, android.R.layout.simple_spinner_item);
+                // Specify the layout to use when the list of choices appears
+                adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                // Apply the adapter to the spinner
+                spinner.setAdapter(adapter1);
                 //When an item is clicked on the spinner it adds the name to the name text box
                 spInventory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
@@ -407,6 +416,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                         String newName = name.substring(0, 1).toUpperCase() + name.substring(1); // Should capitalise the first letter
                         ingredient.setName(newName);
                         String amount = textAmount.getText().toString();
+                        String unit = spinner.getSelectedItem().toString();
                         if (amount.equals("")) {
                             amount = "1";
                         }
@@ -425,12 +435,13 @@ public class ViewRecipeActivity extends AppCompatActivity {
                             }
                         }
                         if (!found) {
-                            mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('" + newName + "','0000-03-00','0')");
+                            mDb.execSQL("Insert into 'Ingredients'(name, best_before, num, units) VALUES('" + newName + "','0000-03-00','0','"+unit+"')");
                         }
                         Cursor cursor = mDb.rawQuery("SELECT ing_id FROM Ingredients WHERE name='"+ingredient.getName()+"'",null);
                         cursor.moveToPosition(0);
                         int count = cursor.getInt(cursor.getColumnIndex("ing_id"));
                         ingredient.setId(count);
+                        ingredient.setUnits(unit);
                         boolean find = false;
                         int d = -1;
                         for (int i = 0; i < ingList.size(); i ++) {

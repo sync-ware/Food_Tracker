@@ -13,7 +13,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -55,13 +57,20 @@ public class AddIngredientActivity extends AppCompatActivity {
             mDb = mDBHelper.getWritableDatabase();
 
         } catch (SQLException mSQLException) {
-//            throw mSQLException;
+        //            throw mSQLException;
         }
 
         //Initialise UI elements for the popup
         final TextInputEditText textName =  findViewById(R.id.input_name);
         final EditText textAmount =  findViewById(R.id.input_amount);
-
+        final Spinner spinner = (Spinner) findViewById(R.id.unit_spinner);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.unit_options, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,12 +81,13 @@ public class AddIngredientActivity extends AppCompatActivity {
                     }
                     String name = textName.getText().toString();
                     String newName = name.substring(0, 1).toUpperCase() + name.substring(1); // Should capitalise the first letter
-
+                    String unit = spinner.getSelectedItem().toString();
                     Snackbar.make(view, "Ingredient Added", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                     Cursor cursor = mDb.rawQuery("SELECT num FROM Ingredients WHERE name='" + newName + "'", null);
                     if (cursor.getCount() == 0) { // Insert if not exists
-                        mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('" + newName + "','0000-03-00','" + textAmount.getText().toString() + "')");
+                        mDb.execSQL("Insert into 'Ingredients'(name, best_before, num, units) VALUES('"
+                                + newName + "','0000-03-00','" + textAmount.getText().toString() + "', '"+ unit + "')");
                     } else {
                         cursor.moveToPosition(0);
                         int count = cursor.getInt(cursor.getColumnIndex("num")); // If this returns anything then it's fine

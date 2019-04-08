@@ -45,6 +45,13 @@
             android:ems="10" />
     </android.support.design.widget.TextInputLayout>
 
+    <Spinner
+        android:id="@+id/unit_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown"
+        android:theme="@style/ThemeOverlay.AppCompat.Light" />
+
     <Button
         android:id="@+id/button_confirm_ingredient"
         android:layout_width="match_parent"

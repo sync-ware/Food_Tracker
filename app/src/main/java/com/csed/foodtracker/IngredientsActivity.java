@@ -66,7 +66,7 @@ public class IngredientsActivity extends AppCompatActivity
         ingredientList = new ArrayList<>();
 //        ingredientList = (List<Ingredient>) getIntent().getSerializableExtra("ingredientList");
         Cursor ingredientTable = mDb.rawQuery("SELECT Ingredients.ing_id, Ingredients.name, Ingredients.best_before," +
-                "Ingredients.num FROM Ingredients ", null);
+                "Ingredients.num, Ingredients.units FROM Ingredients ", null);
 
         ingredientTable.moveToPosition(0);
         while (ingredientTable.getPosition() < ingredientTable.getCount()) {
@@ -76,11 +76,13 @@ public class IngredientsActivity extends AppCompatActivity
             String name = ingredientTable.getString(ingredientTable.getColumnIndex("name"));
             String bestBefore = ingredientTable.getString(ingredientTable.getColumnIndex("best_before"));
             String num = ingredientTable.getString(ingredientTable.getColumnIndex("num"));
+            String units = ingredientTable.getString(ingredientTable.getColumnIndex("units"));
 
             ingredient.setId(id);
             ingredient.setName(name);
             ingredient.setBestBefore(bestBefore);
             ingredient.setNumber(num);
+            ingredient.setUnits(units);
 
             ingredientList.add(ingredient);
             ingredientTable.moveToNext();
@@ -137,7 +139,7 @@ public class IngredientsActivity extends AppCompatActivity
      */
     private void checkIngredientList() {
         Cursor ingredientTable = mDb.rawQuery("SELECT Ingredients.ing_id, Ingredients.name, Ingredients.best_before," +
-                "Ingredients.num FROM Ingredients ", null);
+                "Ingredients.num, Ingredients.units FROM Ingredients ", null);
 
         ingredientTable.moveToPosition(0);
         while (ingredientTable.getPosition() < ingredientTable.getCount()) {
@@ -147,11 +149,13 @@ public class IngredientsActivity extends AppCompatActivity
             String name = ingredientTable.getString(ingredientTable.getColumnIndex("name"));
             String bestBefore = ingredientTable.getString(ingredientTable.getColumnIndex("best_before"));
             String num = ingredientTable.getString(ingredientTable.getColumnIndex("num"));
+            String units = ingredientTable.getString(ingredientTable.getColumnIndex("units"));
 
             ingredient.setId(id);
             ingredient.setName(name);
             ingredient.setBestBefore(bestBefore);
             ingredient.setNumber(num);
+            ingredient.setUnits(units);
             boolean found = false;
             for (int i = 0; i < ingredientList.size(); i++) {
                 if (ingredientList.get(i).getName().equals(ingredient.getName())) {
