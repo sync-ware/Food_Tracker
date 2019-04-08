@@ -40,9 +40,11 @@ public class UploadRecieptActivity extends AppCompatActivity {
     File photoFile;
     private int GALLERY = 1, CAMERA = 2;
     Uri photoURI;
+    List<String> words;
     private AddIngredientsAdapter ingredientsAdapter;
 //    ImageView view;
-
+    //TODO: Fix theme abnormality of black popup on main menu
+    //TODO: Fix the filter and settings icon on this menu
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
@@ -67,20 +69,7 @@ public class UploadRecieptActivity extends AppCompatActivity {
     }
 
     private void extractText(Bitmap bitmap){
-        DatabaseHelper mDBHelper = new DatabaseHelper(this);
-        SQLiteDatabase mDb;
-        try {
-            mDBHelper.updateDataBase();
-        } catch (IOException mIOException) {
-            throw new Error("UnableToUpdateDatabase");
-        }
 
-        try {
-            mDb = mDBHelper.getWritableDatabase();
-
-        } catch (SQLException mSQLException) {
-            throw mSQLException;
-        }
         TextRecognizer textRecognizer = new TextRecognizer.Builder(getApplicationContext()).build();
         Frame imageFrame = new Frame.Builder()
                 .setBitmap(bitmap)                 // your image bitmap
@@ -94,21 +83,13 @@ public class UploadRecieptActivity extends AppCompatActivity {
         for (int i = 0; i < textBlocks.size(); i++) {
             TextBlock textBlock = textBlocks.get(textBlocks.keyAt(i));
             imageText.append(textBlock.getValue());                   // return string
+            imageText.append(" ");
         }
         TextView tv = (TextView) findViewById(R.id.textView);
         String string = imageText.toString();
         tv.setText(string);
         tv.setVisibility(View.GONE);
-        Cursor cursor = mDb.rawQuery("SELECT name FROM Ingredients",null);
-        List<String> words = new ArrayList<>();
-        cursor.moveToPosition(0);
-        //Keep looping until you reach the last row
-        while (cursor.getPosition() < cursor.getCount()){
-            String name = cursor.getString(cursor.getColumnIndex("name"));
-            words.add(name.toLowerCase());
-            cursor.moveToNext();
-        }
-        cursor.close();
+
         List<String> takenIngs = new ArrayList<>();
         for (String word: string.split(" ")) {
             for (String validWord: words) {
@@ -119,7 +100,6 @@ public class UploadRecieptActivity extends AppCompatActivity {
                 }
             }
         }
-//                tv.setText("");
     }
 
     private void addItem(String name) {
@@ -187,6 +167,20 @@ public class UploadRecieptActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        DatabaseHelper mDBHelper = new DatabaseHelper(this);
+        SQLiteDatabase mDb;
+        try {
+            mDBHelper.updateDataBase();
+        } catch (IOException mIOException) {
+            throw new Error("UnableToUpdateDatabase");
+        }
+
+        try {
+            mDb = mDBHelper.getWritableDatabase();
+
+        } catch (SQLException mSQLException) {
+            throw mSQLException;
+        }
         String themeVal;
         SharedPreferences themePrefs;
         themePrefs = getSharedPreferences("com.csed.foodtracker.theme", 0);
@@ -197,7 +191,16 @@ public class UploadRecieptActivity extends AppCompatActivity {
             setTheme(R.style.AppThemeDark);
         }
         super.onCreate(savedInstanceState);
-
+        Cursor cursor = mDb.rawQuery("SELECT name FROM Ingredients",null);
+        words = new ArrayList<>();
+        cursor.moveToPosition(0);
+        //Keep looping until you reach the last row
+        while (cursor.getPosition() < cursor.getCount()){
+            String name = cursor.getString(cursor.getColumnIndex("name"));
+            words.add(name.toLowerCase());
+            cursor.moveToNext();
+        }
+        cursor.close();
         setContentView(R.layout.activity_upload_reciept);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

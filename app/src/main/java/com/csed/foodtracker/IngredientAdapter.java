@@ -11,7 +11,9 @@ import java.util.List;
 // Code adapted from https://guides.codepath.com/android/using-the-recyclerview
 
 public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.ViewHolder> {
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    private static ClickListener clickListener;
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         public TextView nameTextView;
 
@@ -19,13 +21,28 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.Vi
             super(itemView);
 
             nameTextView = (TextView) itemView.findViewById(R.id.recipe_name);
+            itemView.setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View v) {
+            clickListener.onItemClick(getAdapterPosition(), v);
+        }
+
     }
 
     private List<Ingredient> mRecipes;
 
     public IngredientAdapter(List<Ingredient> recipes){
         mRecipes = recipes;
+    }
+
+    public void setOnItemClickListener(ClickListener clickListener) {
+        IngredientAdapter.clickListener = clickListener;
+    }
+
+    public interface ClickListener {
+        void onItemClick(int position, View v);
     }
 
     // Usually involves inflating a layout from XML and returning the holder
@@ -50,7 +67,6 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.Vi
 
         // Set item views based on your views and data model
         TextView textView = viewHolder.nameTextView;
-        //TODO: Needs to be slightly different based on units
         StringBuilder setText = new StringBuilder(Ingredient.getNumber());
         if (Ingredient.getUnits().equals("g") || Ingredient.getUnits().equals("ml")) {
             setText.append(Ingredient.getUnits());

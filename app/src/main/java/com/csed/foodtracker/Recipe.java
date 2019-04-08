@@ -80,6 +80,10 @@ public class Recipe implements Serializable {
         return url;
     }
 
+    public String getImage() {
+        return image;
+    }
+
     public ArrayList<Ingredient> getIngredients() {
         return ingredients;
     }

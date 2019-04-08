@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -102,7 +101,8 @@ public class AddIngredientsAdapter extends ArrayAdapter<Ingredient> {
 
             Cursor cursor = mDb.rawQuery("SELECT num FROM Ingredients WHERE name='"+ingredientList.get(i).getName()+"'",null);
             if (cursor.getCount() == 0) { // Insert if not exists
-                mDb.execSQL("Insert into 'Ingredients'(name, best_before, num) VALUES('" + ingredientList.get(i).getName() + "','0000-03-00','" + val+ "')");
+                mDb.execSQL("Insert into 'Ingredients'(name, best_before, num, units) VALUES('" +
+                        ingredientList.get(i).getName() + "','0000-03-00','" + val+ "','"+ingredientList.get(i).getUnits()+"')");
             } else {
                 cursor.moveToPosition(0);
                 int count = cursor.getInt(cursor.getColumnIndex("num")); // If this returns anything then it's fine

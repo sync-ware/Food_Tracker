@@ -1,11 +1,15 @@
 package com.csed.foodtracker;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -13,9 +17,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.provider.MediaStore;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -33,11 +39,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +58,9 @@ public class ViewRecipeActivity extends AppCompatActivity {
     SQLiteDatabase mDb;
     List<Ingredient> ingList;
     IngredientAdapter ingredientAdapter;
-
+    int GALLERY = 1;
+    ImageView imageView;
+    Uri contentURI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +100,25 @@ public class ViewRecipeActivity extends AppCompatActivity {
         /*Initialise UI elements, all are disable at first and cannot be edited
         * They are assigned the recipes attributes respectively
         */
+
+        imageView = (ImageView) findViewById(R.id.image);
+        //TODO: Actually request the permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Permission not granted, using default image", Toast.LENGTH_SHORT).show();
+            // Permission is not granted
+        } else {
+            try {
+                Uri uri = Uri.parse(recipe.getImage());
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                imageView.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                Toast.makeText(this, "No image found, using default", Toast.LENGTH_SHORT).show();
+            }
+        }
+        final Button uploadImage = (Button) findViewById(R.id.addImageButton);
+        uploadImage.setEnabled(false);
+        uploadImage.setVisibility(View.GONE);
         final TextInputEditText recipeName = (TextInputEditText) findViewById(R.id.text_name);
         recipeName.setText(recipe.getName());
         final TextInputEditText recipeDesc = (TextInputEditText) findViewById(R.id.text_desc);
@@ -145,6 +174,15 @@ public class ViewRecipeActivity extends AppCompatActivity {
             }
         }
 
+        uploadImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(galleryIntent, GALLERY);
+                Toast.makeText(ViewRecipeActivity.this, "Photo Uploaded", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         Cursor cursor = mDb.rawQuery("SELECT Ingredients.name, RecipeIngredients.measurement, Ingredients.units" +
                 " FROM Ingredients INNER JOIN RecipeIngredients ON" +
@@ -167,9 +205,6 @@ public class ViewRecipeActivity extends AppCompatActivity {
         }
         cursor.close();
         RecyclerView recipeListView = findViewById(R.id.list_ingredients);
-
-
-
 
         //URL click event, opens the web page into a chrome custom tab
         recipeUrl.setOnClickListener(new View.OnClickListener() {
@@ -201,6 +236,8 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     addIngredientButton.setVisibility(View.VISIBLE);
                     cancel.setVisibility(View.VISIBLE);
                     cancel.setEnabled(true);
+                    uploadImage.setEnabled(true);
+                    uploadImage.setVisibility(View.VISIBLE);
                 }
                 else {
                     if (ingList.size() > 0) {
@@ -210,7 +247,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                             mode = 1;
                         }
                         mDb.execSQL("UPDATE Recipes SET name = '" + recipeName.getText() + "', description = '"
-                                + recipeDesc.getText() + "', prep_time = '" + recipePrepTime.getText() + "', calories = "
+                                + recipeDesc.getText() + "', image = '"+ contentURI.toString() + "', prep_time = '" + recipePrepTime.getText() + "', calories = "
                                 + recipeCalories.getText() + ", url = '" + recipeUrl.getText() + "', favourite = '" + mode + "' WHERE recipe_id = "
                                 + recipe.getId());
                         Toast.makeText(ViewRecipeActivity.this, "Recipe Updated!", Toast.LENGTH_SHORT).show();
@@ -225,6 +262,8 @@ public class ViewRecipeActivity extends AppCompatActivity {
                         addIngredientButton.setVisibility(View.GONE);
                         cancel.setVisibility(View.GONE);
                         cancel.setEnabled(false);
+                        uploadImage.setEnabled(false);
+                        uploadImage.setVisibility(View.GONE);
                         finish();
                     } else {
                         Toast.makeText(ViewRecipeActivity.this, "A Recipe Needs Ingredients!", Toast.LENGTH_SHORT).show();
@@ -291,6 +330,8 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 addIngredientButton.setVisibility(View.GONE);
                 cancel.setVisibility(View.GONE);
                 cancel.setEnabled(false);
+                uploadImage.setEnabled(false);
+                uploadImage.setVisibility(View.GONE);
             }
         });
         final FloatingActionButton cook = findViewById(R.id.cook);
@@ -347,7 +388,6 @@ public class ViewRecipeActivity extends AppCompatActivity {
             cook.setVisibility(View.INVISIBLE);
         }
         final Context context = this;
-
 
         //Add Ingredient button that generates a small popup menu
         addIngredientButton.setOnClickListener(new View.OnClickListener() {
@@ -487,6 +527,29 @@ public class ViewRecipeActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == this.RESULT_CANCELED) {
+            return;
+        }
+        if (requestCode == GALLERY) {
+            if (data != null) {
+                contentURI = data.getData();
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI);
+                    Toast.makeText(ViewRecipeActivity.this, "Image Saved!", Toast.LENGTH_SHORT).show();
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(ViewRecipeActivity.this, "Failed!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.recipe_options, menu);
@@ -498,21 +561,15 @@ public class ViewRecipeActivity extends AppCompatActivity {
         switch(item.getItemId()){
             //Deletes Recipe from Ingredients
             case R.id.action_delete:
-
                 mDb.execSQL("DELETE FROM Recipes WHERE recipe_id = " + recipe.getId() + ";");
                 mDb.execSQL("DELETE FROM RecipeIngredients WHERE recipe_id = " + recipe.getId() + ";");
-
                 //Go back to MainActivity
                 finish();
-
                 return true;
-
             default:
                 finish(); // Bodge
                 return super.onOptionsItemSelected(item);
 
         }
     }
-
-
 }

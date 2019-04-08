@@ -403,7 +403,7 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.action_theme:
                 SharedPreferences.Editor themeEditor = themePrefs.edit();
-                if (themeVal.equals("1")) { //TODO: Make this reload the application somehow
+                if (themeVal.equals("1")) {
                     themeEditor.putString("theme", "0").apply();
                     Toast.makeText(MainActivity.this, "Switched to dark theme", Toast.LENGTH_SHORT).show();
                 } else {
@@ -444,6 +444,20 @@ public class MainActivity extends AppCompatActivity
                 mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('15', 'Celery', '0000-01-00', '0', 'Pieces');");
                 mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('16', 'Mince', '0000-01-00', '0', 'g');");
                 mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('17', 'Ham', '0000-01-00', '0', 'Slices');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('18', 'Rice', '0000-01-00', '0', 'g');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('19', 'Avocados', '0000-01-00', '0', 'Whole');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('20', 'Butter', '0000-01-00', '0', 'g');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('21', 'Bananas', '0000-01-00', '0', 'Whole');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('22', 'Potatoes', '0000-01-00', '0', 'Whole');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('23', 'Tortillas', '0000-01-00', '0', 'Whole');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('24', 'Peppers', '0000-01-00', '0', 'Whole');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('25', 'Tuna', '0000-01-00', '0', 'g');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('26', 'Tomatoes', '0000-01-00', '0', 'Whole');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('27', 'Spaghetti', '0000-01-00', '0', 'g');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('28', 'Noodles', '0000-01-00', '0', 'g');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('29', 'Sauce', '0000-01-00', '0', 'g');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('30', 'Peas', '0000-01-00', '0', 'g');");
+                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('31', 'Seasoning', '0000-01-00', '0', 'g');");
                 mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('1', '1', '1', '1.0', 'Peeled and chopped');");
                 mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('2', '1', '6', '100.0', 'Just put it in');");
                 mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('3', '2', '6', '200.0', 'Just put it in');");
@@ -534,6 +548,10 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         Intent intent;
         switch (id) {
+            case R.id.nav_recipes:
+                intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+                break;
             case R.id.nav_ingredients:
                 intent = new Intent(this, IngredientsActivity.class);
                 intent.putExtra("ingredientList", ingredientList);

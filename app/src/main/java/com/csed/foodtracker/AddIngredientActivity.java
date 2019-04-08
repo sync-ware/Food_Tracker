@@ -37,6 +37,8 @@ public class AddIngredientActivity extends AppCompatActivity {
             setTheme(R.style.AppThemeDark);
         }
         super.onCreate(savedInstanceState);
+        final Ingredient ingredientEditing = (Ingredient)
+                getIntent().getSerializableExtra("ingredientInfo");
 
 
         setContentView(R.layout.activity_add_ingredient);
@@ -64,6 +66,7 @@ public class AddIngredientActivity extends AppCompatActivity {
         final TextInputEditText textName =  findViewById(R.id.input_name);
         final EditText textAmount =  findViewById(R.id.input_amount);
         final Spinner spinner = (Spinner) findViewById(R.id.unit_spinner);
+
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.unit_options, android.R.layout.simple_spinner_item);
@@ -71,6 +74,24 @@ public class AddIngredientActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         spinner.setAdapter(adapter);
+        if (ingredientEditing != null) { // If it's null then it hasn't been passed in
+            textName.setText(ingredientEditing.getName());
+            textName.setEnabled(false);
+            textAmount.setText(ingredientEditing.getNumber());
+            /*
+            Array: g, Whole, Slices, Pieces, ml
+             */
+            int val = -1;
+            String[] units = getResources().getStringArray(R.array.unit_options);
+            for (int i = 0; i < units.length; i ++) {
+                if (ingredientEditing.getUnits().equals(units[i])) {
+                    val = i;
+                    break;
+                }
+            }
+            spinner.setSelection(val);
+        }
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,7 +113,9 @@ public class AddIngredientActivity extends AppCompatActivity {
                         cursor.moveToPosition(0);
                         int count = cursor.getInt(cursor.getColumnIndex("num")); // If this returns anything then it's fine
                         cursor.close();
-                        int value = count + Integer.parseInt(textAmount.getText().toString());
+//                        int value = count + Integer.parseInt(textAmount.getText().toString());
+                        int value = Integer.parseInt(textAmount.getText().toString());
+
                         mDb.execSQL("UPDATE Ingredients SET num =" + value + " WHERE name = '" + newName + "'"); // Should increase the value
                     }
                     finish();

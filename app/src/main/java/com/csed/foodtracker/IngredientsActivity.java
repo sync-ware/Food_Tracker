@@ -109,7 +109,7 @@ public class IngredientsActivity extends AppCompatActivity
             }
         });
 
-        List<Ingredient> availableIngredients = new ArrayList<>();
+        final List<Ingredient> availableIngredients = new ArrayList<>();
 
 
         for (Ingredient ing : ingredientList) {
@@ -119,11 +119,11 @@ public class IngredientsActivity extends AppCompatActivity
                 }
             } catch (NumberFormatException e) {
                 ing.setNumber("0");
-                availableIngredients.add(ing);
             }
         }
+        IngredientAdapter adapter = new IngredientAdapter(ingredientList);
 
-        IngredientAdapter adapter = new IngredientAdapter(availableIngredients);
+//        IngredientAdapter adapter = new IngredientAdapter(availableIngredients);
         RecyclerView ingRecycler = (RecyclerView) findViewById(R.id.ingredients_recyclerview);
         ingRecycler.setAdapter(adapter);
 
@@ -131,7 +131,18 @@ public class IngredientsActivity extends AppCompatActivity
         ingRecycler.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
                 DividerItemDecoration.VERTICAL));
 
-
+        //Item select event
+        adapter.setOnItemClickListener(new IngredientAdapter.ClickListener() {
+            @Override
+            public void onItemClick(int position, View v) {
+                //Building a new intent to go from the current context to the ViewRecipe page
+                Intent intent = new Intent(getApplicationContext(), AddIngredientActivity.class);
+                //Put ingredient list into Intent
+                intent.putExtra("ingredientInfo",availableIngredients.get(position));
+                //Begin new activity
+                startActivity(intent);
+            }
+        });
     }
 
     /**
@@ -186,13 +197,13 @@ public class IngredientsActivity extends AppCompatActivity
                 break;
 
                 //TODO: figure out why putExtra isn't working to allow this menu item to work
-/*            case R.id.nav_addRecipe:
+            case R.id.nav_addRecipe:
                 intent = new Intent(getApplicationContext(),AddRecipeActivity.class);
                 //Put ingredient list into Intent
-                intent.putExtra("ingredientList",ingredientList);
+//                intent.putExtra("ingredientList",ingredientList);
                 //Begin new activity
                 startActivity(intent);
-                break;*/
+                break;
 
             case R.id.nav_addIngredient:
                 intent = new Intent(getApplicationContext(),AddIngredientActivity.class);
