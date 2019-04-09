@@ -540,7 +540,6 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI);
                     Toast.makeText(ViewRecipeActivity.this, "Image Saved!", Toast.LENGTH_SHORT).show();
 
-
                 } catch (IOException e) {
                     e.printStackTrace();
                     Toast.makeText(ViewRecipeActivity.this, "Failed!", Toast.LENGTH_SHORT).show();

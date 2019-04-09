@@ -121,7 +121,7 @@ public class IngredientsActivity extends AppCompatActivity
                 ing.setNumber("0");
             }
         }
-        IngredientAdapter adapter = new IngredientAdapter(ingredientList);
+        IngredientAdapter adapter = new IngredientAdapter(availableIngredients);
 
 //        IngredientAdapter adapter = new IngredientAdapter(availableIngredients);
         RecyclerView ingRecycler = (RecyclerView) findViewById(R.id.ingredients_recyclerview);

@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">Food Tracker</string>
+    <string name="app_name">eFridge</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Food Tracker</string>
+    <string name="nav_header_title">eFridge</string>
     <string name="nav_header_subtitle">Recipes and Ingredients all in One Place!</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_theme">Change Theme</string>

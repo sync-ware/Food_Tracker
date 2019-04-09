@@ -73,10 +73,9 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.Vi
             setText.append(" of ");
         } else {
             setText.append(" ");
-            setText.append(Ingredient.getUnits());
-            setText.append(" ");
             if (!Ingredient.getUnits().equals("Whole")) {
-                setText.append("of ");
+                setText.append(Ingredient.getUnits());
+                setText.append(" of ");
             }
         }
         setText.append(Ingredient.getName());
