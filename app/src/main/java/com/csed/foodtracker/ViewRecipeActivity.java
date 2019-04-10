@@ -108,12 +108,14 @@ public class ViewRecipeActivity extends AppCompatActivity {
             Toast.makeText(this, "Permission not granted, using default image", Toast.LENGTH_SHORT).show();
             // Permission is not granted
         } else {
-            try {
-                Uri uri = Uri.parse(recipe.getImage());
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-                imageView.setImageBitmap(bitmap);
-            } catch (IOException e) {
-                Toast.makeText(this, "No image found, using default", Toast.LENGTH_SHORT).show();
+            if (recipe.getImage() != null) {
+                try {
+                    Uri uri = Uri.parse(recipe.getImage());
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                    imageView.setImageBitmap(bitmap);
+                } catch (IOException e) {
+                    Toast.makeText(this, "No image found, using default", Toast.LENGTH_SHORT).show();
+                }
             }
         }
         final Button uploadImage = (Button) findViewById(R.id.addImageButton);
@@ -246,8 +248,14 @@ public class ViewRecipeActivity extends AppCompatActivity {
                         if (favourite) {
                             mode = 1;
                         }
+                        String url;
+                        if (contentURI == null) {
+                            url = null;
+                        } else {
+                            url = contentURI.toString();
+                        }
                         mDb.execSQL("UPDATE Recipes SET name = '" + recipeName.getText() + "', description = '"
-                                + recipeDesc.getText() + "', image = '"+ contentURI.toString() + "', prep_time = '" + recipePrepTime.getText() + "', calories = "
+                                + recipeDesc.getText() + "', image = '"+ url + "', prep_time = '" + recipePrepTime.getText() + "', calories = "
                                 + recipeCalories.getText() + ", url = '" + recipeUrl.getText() + "', favourite = '" + mode + "' WHERE recipe_id = "
                                 + recipe.getId());
                         Toast.makeText(ViewRecipeActivity.this, "Recipe Updated!", Toast.LENGTH_SHORT).show();
