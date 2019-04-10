@@ -97,7 +97,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (recipe.getIngredients().size() > 0) {
+                if (recipe.getIngredients().size() > 0 && textName.getText().length() > 0) {
                     // Insert recipe to the respective table
                     String name = textName.getText().toString();
                     String newName = name.substring(0, 1).toUpperCase() + name.substring(1); // Should capitalise the first letter
@@ -128,7 +128,7 @@ public class AddRecipeActivity extends AppCompatActivity {
                     //Go back to MainActivity
                     finish();
                 } else {
-                    Toast.makeText(AddRecipeActivity.this, "Recipes Need Ingredients!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddRecipeActivity.this, "Missing some values", Toast.LENGTH_SHORT).show();
                 }
             }
         });
