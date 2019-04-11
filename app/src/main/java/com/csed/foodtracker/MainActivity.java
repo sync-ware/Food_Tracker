@@ -415,58 +415,16 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_resetDb:
                 // Deletes all records from the database
-                mDb.execSQL("DELETE FROM Ingredients;");
-                mDb.execSQL("DELETE FROM Recipes;");
-                mDb.execSQL("DELETE FROM RecipeIngredients;");
+                mDb.execSQL("DELETE FROM Ingredients WHERE ing_id > 35;");
+                mDb.execSQL("DELETE FROM Recipes WHERE recipe_id > 10;");
+                mDb.execSQL("DELETE FROM RecipeIngredients WHERE id > 25;");
                 // Refills the datahase with stock data
-                //TODO: Find a better way of doing this
+/*                //TODO: Find a better way of doing this
                 try {
                     mDb.execSQL("ALTER TABLE Ingredients ADD COLUMN units string");
                 } catch (SQLException e) {
                     int a = 1;
-                }
-                mDb.execSQL("INSERT INTO 'main'.'Recipes' ('recipe_id', 'name', 'description', 'prep_time', 'calories', 'url', 'favourite') VALUES ('1', 'Spaghetti Bolognese', 'Put the onion and oil in a large pan and fry over a fairly high heat for 3-4 mins. Add the garlic and mince and fry until they both brown. Add the mushrooms and herbs, and cook for another couple of mins.', '00:10', '640', 'https://www.goodtoknow.co.uk/recipes/spaghetti-bolognese-1', '0')");
-                mDb.execSQL("INSERT INTO 'main'.'Recipes' ('recipe_id', 'name', 'description', 'prep_time', 'calories', 'url', 'favourite') VALUES ('2', 'Pasta and Pesto', '1) Cook pasta; 2) Add pesto; 3) ??; 4) Profit.', '00:10', '10', 'http://allrecipes.co.uk/consent/?dest=/recipe/1646/hey-pesto-pasta.aspx', '0');");
-                mDb.execSQL("INSERT INTO 'main'.'Recipes' ('recipe_id', 'name', 'description', 'prep_time', 'calories', 'url', 'favourite') VALUES ('3', 'Bacon Pasta', 'Cook pasta in pot and cook bacon in pan, then put together.', '00:13', '100', 'https://www.google.com/', '0');");
-                mDb.execSQL("INSERT INTO 'main'.'Recipes' ('recipe_id', 'name', 'description', 'prep_time', 'calories', 'url', 'favourite') VALUES ('4', 'Pizza', 'Cook pizza in pizza and cook pizza in pizza, then put pizza.', '55:55', '555', 'https://www.help.me/', '0');");
-                mDb.execSQL("INSERT INTO 'main'.'Recipes' ('recipe_id', 'name', 'description', 'prep_time', 'calories', 'url', 'favourite') VALUES ('5', 'Toast', 'Put bread in the toaster. Set the dial to prefered setting. Wait for it to pop, then add butter and chicken to taste.', '01:00', '1', 'https://www.toast.chicken/', '0');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('1', 'Onions', '0000-03-00', '2', 'Whole');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('5', 'Carrots', '0000-03-00', '5', 'Whole');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('6', 'Pasta', '0000-03-00', '400', 'g');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('7', 'Pesto', '0000-03-00', '150', 'g');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('8', 'Bread', '0000-03-00', '15', 'Slices');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('9', 'Bacon', '0000-03-00', '8', 'Slices');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('10', 'Pizzas', '0000-03-00', '1', 'Whole');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('11', 'Cheese', '0000-01-00', '50', 'g');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('12', 'Chicken', '0000-01-00', '0', 'Pieces');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('13', 'Sausages', '0000-11-00', '0', 'Whole');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('14', 'Milk', '0000-02-00', '0', 'ml');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('15', 'Celery', '0000-01-00', '0', 'Pieces');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('16', 'Mince', '0000-01-00', '0', 'g');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('17', 'Ham', '0000-01-00', '0', 'Slices');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('18', 'Rice', '0000-01-00', '0', 'g');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('19', 'Avocados', '0000-01-00', '0', 'Whole');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('20', 'Butter', '0000-01-00', '0', 'g');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('21', 'Bananas', '0000-01-00', '0', 'Whole');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('22', 'Potatoes', '0000-01-00', '0', 'Whole');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('23', 'Tortillas', '0000-01-00', '0', 'Whole');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('24', 'Peppers', '0000-01-00', '0', 'Whole');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('25', 'Tuna', '0000-01-00', '0', 'g');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('26', 'Tomatoes', '0000-01-00', '0', 'Whole');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('27', 'Spaghetti', '0000-01-00', '0', 'g');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('28', 'Noodles', '0000-01-00', '0', 'g');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('29', 'Sauce', '0000-01-00', '0', 'g');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('30', 'Peas', '0000-01-00', '0', 'g');");
-                mDb.execSQL("INSERT INTO 'main'.'Ingredients' ('ing_id', 'name', 'best_before', 'num', 'units') VALUES ('31', 'Seasoning', '0000-01-00', '0', 'g');");
-                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('1', '1', '1', '1.0', 'Peeled and chopped');");
-                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('2', '1', '6', '100.0', 'Just put it in');");
-                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('3', '2', '6', '200.0', 'Just put it in');");
-                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('4', '2', '7', '25.0', 'Put it on top');");
-                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('5', '3', '6', '100.0', 'Just put it in');");
-                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('6', '3', '9', '10.0', 'All the bacons');");
-                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('7', '4', '10', '1.0', 'It''s pizza');");
-                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('8', '5', '8', '2.0', 'Toast');");
-                mDb.execSQL("INSERT INTO 'main'.'RecipeIngredients' ('id', 'recipe_id', 'ing_id', 'measurement', 'detail') VALUES ('9', '2', '11', '3.0', 'Sprinkle it on top');");
+                }*/
                 Toast.makeText(MainActivity.this, "Reset Database", Toast.LENGTH_SHORT).show();
                 recreate();
 

@@ -67,7 +67,7 @@ public class IngredientsActivity extends AppCompatActivity
 //        ingredientList = (List<Ingredient>) getIntent().getSerializableExtra("ingredientList");
         Cursor ingredientTable = mDb.rawQuery("SELECT Ingredients.ing_id, Ingredients.name, Ingredients.best_before," +
                 "Ingredients.num, Ingredients.units FROM Ingredients ", null);
-
+        Toast.makeText(this, "Open", Toast.LENGTH_SHORT).show();
         ingredientTable.moveToPosition(0);
         while (ingredientTable.getPosition() < ingredientTable.getCount()) {
             Ingredient ingredient = new Ingredient();
@@ -196,7 +196,6 @@ public class IngredientsActivity extends AppCompatActivity
                 startActivity(intent);
                 break;
 
-                //TODO: figure out why putExtra isn't working to allow this menu item to work
             case R.id.nav_addRecipe:
                 intent = new Intent(getApplicationContext(),AddRecipeActivity.class);
                 //Put ingredient list into Intent

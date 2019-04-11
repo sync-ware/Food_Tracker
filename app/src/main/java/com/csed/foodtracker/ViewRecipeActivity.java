@@ -103,21 +103,76 @@ public class ViewRecipeActivity extends AppCompatActivity {
 
         imageView = (ImageView) findViewById(R.id.image);
         //TODO: Actually request the permission
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "Permission not granted, using default image", Toast.LENGTH_SHORT).show();
-            // Permission is not granted
-        } else {
             if (recipe.getImage() != null) {
-                try {
-                    Uri uri = Uri.parse(recipe.getImage());
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-                    imageView.setImageBitmap(bitmap);
-                } catch (IOException e) {
-                    Toast.makeText(this, "No image found, using default", Toast.LENGTH_SHORT).show();
+                Drawable image;
+                switch (recipe.getImage()) {
+                    case ("stock1"):
+                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock1, null);
+                        imageView.setImageDrawable(image);
+                        break;
+
+                    case ("stock2"):
+                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock2, null);
+                        imageView.setImageDrawable(image);
+                        break;
+
+                    case ("stock3"):
+                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock3, null);
+                        imageView.setImageDrawable(image);
+                        break;
+
+                    case ("stock4"):
+                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock4, null);
+                        imageView.setImageDrawable(image);
+                        break;
+
+                    case ("stock5"):
+                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock5, null);
+                        imageView.setImageDrawable(image);
+                        break;
+
+                    case ("stock6"):
+                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock6, null);
+                        imageView.setImageDrawable(image);
+                        break;
+
+                    case ("stock7"):
+                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock7, null);
+                        imageView.setImageDrawable(image);
+                        break;
+
+                    case ("stock8"):
+                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock8, null);
+                        imageView.setImageDrawable(image);
+                        break;
+
+                    case ("stock9"):
+                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock9, null);
+                        imageView.setImageDrawable(image);
+                        break;
+
+                    case ("stock10"):
+                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock10, null);
+                        imageView.setImageDrawable(image);
+                        break;
+
+                    default:
+                        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            Toast.makeText(this, "Permission not granted, using default image", Toast.LENGTH_SHORT).show();
+                            // Permission is not granted
+                        } else {
+                            try {
+                                Uri uri = Uri.parse(recipe.getImage());
+                                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                                imageView.setImageBitmap(bitmap);
+                            } catch (IOException e) {
+                                Toast.makeText(this, "No image found, using default", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        break;
                 }
             }
-        }
         final Button uploadImage = (Button) findViewById(R.id.addImageButton);
         uploadImage.setEnabled(false);
         uploadImage.setVisibility(View.GONE);
