@@ -67,7 +67,6 @@ public class IngredientsActivity extends AppCompatActivity
 //        ingredientList = (List<Ingredient>) getIntent().getSerializableExtra("ingredientList");
         Cursor ingredientTable = mDb.rawQuery("SELECT Ingredients.ing_id, Ingredients.name, Ingredients.best_before," +
                 "Ingredients.num, Ingredients.units FROM Ingredients ", null);
-        Toast.makeText(this, "Open", Toast.LENGTH_SHORT).show();
         ingredientTable.moveToPosition(0);
         while (ingredientTable.getPosition() < ingredientTable.getCount()) {
             Ingredient ingredient = new Ingredient();

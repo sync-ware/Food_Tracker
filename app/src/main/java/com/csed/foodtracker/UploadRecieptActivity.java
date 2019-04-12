@@ -76,7 +76,6 @@ public class UploadRecieptActivity extends AppCompatActivity {
                 .build();
 
         StringBuilder imageText = new StringBuilder();
-        Toast.makeText(UploadRecieptActivity.this, "AAA!", Toast.LENGTH_SHORT).show();
 
         SparseArray<TextBlock> textBlocks = textRecognizer.detect(imageFrame);
 
@@ -135,7 +134,7 @@ public class UploadRecieptActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == this.RESULT_CANCELED) {
+        if (resultCode == RESULT_CANCELED) {
             return;
         }
         if (requestCode == GALLERY) {
@@ -156,14 +155,12 @@ public class UploadRecieptActivity extends AppCompatActivity {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoURI);
                 // Attempts to retrieve the photo from the previously determined URI
                 extractText(bitmap);
-            } catch (IOException e) {
-                Toast.makeText(UploadRecieptActivity.this, "Error!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(UploadRecieptActivity.this, "Image Saved!", Toast.LENGTH_SHORT).show();
+            } catch (IOException|NullPointerException e) {
+                Toast.makeText(UploadRecieptActivity.this, "There's been an error. Please try again soon!", Toast.LENGTH_SHORT).show();
             }
-            Toast.makeText(UploadRecieptActivity.this, "Image Saved!", Toast.LENGTH_SHORT).show();
         }
     }
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -226,7 +223,6 @@ public class UploadRecieptActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 dispatchTakePictureIntent();
-                Toast.makeText(UploadRecieptActivity.this, "Photo Uploaded", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -237,7 +233,6 @@ public class UploadRecieptActivity extends AppCompatActivity {
                 Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(galleryIntent, GALLERY);
-                Toast.makeText(UploadRecieptActivity.this, "Photo Uploaded", Toast.LENGTH_SHORT).show();
             }
         });
         final Context context = this;

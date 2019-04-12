@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.DividerItemDecoration;
@@ -271,7 +272,9 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);*/
         final List<Recipe> newRecipeList = new ArrayList<>(); // This is the list that ends up being used for recipeListView
         if (filterMode == 0) { // filterMode 0 is all option
-            recipeList.sort(new RecipeComparitor());
+            if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
+                recipeList.sort(new RecipeComparitor());
+            }
             recipeAdapter = new RecipeAdapter(recipeList, getResources(), this, themeVal); // Ordered one instead
         } else {
             try {
@@ -348,7 +351,9 @@ public class MainActivity extends AppCompatActivity
             } catch (IndexOutOfBoundsException e) { // Bodge to avoid another SQL query
                 Toast.makeText(MainActivity.this, "Finished Loading", Toast.LENGTH_SHORT).show();
             }
-            newRecipeList.sort(new RecipeComparitor());
+            if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
+                newRecipeList.sort(new RecipeComparitor());
+            }
             recipeAdapter = new RecipeAdapter(newRecipeList, getResources(), this, themeVal); // Defines the adapter with the newRecipeList
         }
 
