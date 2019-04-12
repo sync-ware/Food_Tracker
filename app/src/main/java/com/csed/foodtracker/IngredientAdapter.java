@@ -12,6 +12,7 @@ import java.util.List;
 
 public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.ViewHolder> {
     private static ClickListener clickListener;
+    private boolean runWithView;
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
@@ -26,15 +27,18 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.Vi
 
         @Override
         public void onClick(View v) {
-            clickListener.onItemClick(getAdapterPosition(), v);
+            if (runWithView) {
+                clickListener.onItemClick(getAdapterPosition(), v);
+            }
         }
 
     }
 
     private List<Ingredient> mRecipes;
 
-    public IngredientAdapter(List<Ingredient> recipes){
+    public IngredientAdapter(List<Ingredient> recipes, boolean runView){
         mRecipes = recipes;
+        runWithView = runView;
     }
 
     public void setOnItemClickListener(ClickListener clickListener) {

@@ -80,7 +80,7 @@ public class AddRecipeActivity extends AppCompatActivity {
         */
         RecyclerView listIngredients = (RecyclerView) findViewById(R.id.list_ingredients);
         //A new custom adapter class that can parse the Ingredient object to the list
-        final IngredientAdapter ingAdapter = new IngredientAdapter(recipeIngredientList);
+        final IngredientAdapter ingAdapter = new IngredientAdapter(recipeIngredientList, false);
         listIngredients.setAdapter(ingAdapter);
         listIngredients.setLayoutManager(new LinearLayoutManager(this));
         listIngredients.addItemDecoration(new DividerItemDecoration(getApplicationContext(),

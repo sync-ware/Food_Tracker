@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.MediaStore;
+import android.support.annotation.RestrictTo;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
@@ -44,6 +45,8 @@ import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
+
+import com.google.android.gms.common.api.Api;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -102,6 +105,9 @@ public class ViewRecipeActivity extends AppCompatActivity {
         */
 
         imageView = (ImageView) findViewById(R.id.image);
+        if (recipe == null) {
+            recipe = new Recipe();
+        }
         //TODO: Actually request the permission
             if (recipe.getImage() != null) {
                 Drawable image;
@@ -291,7 +297,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     favouriteSwitch.setEnabled(true);
                     addIngredientButton.setEnabled(true);
                     addIngredientButton.setVisibility(View.VISIBLE);
-                    cancel.setVisibility(View.VISIBLE);
+                    cancel.show();
                     cancel.setEnabled(true);
                     uploadImage.setEnabled(true);
                     uploadImage.setVisibility(View.VISIBLE);
@@ -323,7 +329,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                         favouriteSwitch.setEnabled(false);
                         addIngredientButton.setEnabled(false);
                         addIngredientButton.setVisibility(View.GONE);
-                        cancel.setVisibility(View.GONE);
+                        cancel.hide();
                         cancel.setEnabled(false);
                         uploadImage.setEnabled(false);
                         uploadImage.setVisibility(View.GONE);
@@ -334,8 +340,11 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 }
             }
         });
-
-        filterMode = (Integer) getIntent().getSerializableExtra("mode"); // Passed in variable filter mode
+        try {
+            filterMode = (Integer) getIntent().getSerializableExtra("mode"); // Passed in variable filter mode
+        } catch (NullPointerException e) {
+            filterMode = 1;
+        }
         List<Ingredient> oldIngList = new ArrayList<>();
         List<Ingredient> newIngList = new ArrayList<>();
         List<String> cookableList = new ArrayList<>();
@@ -391,7 +400,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 favouriteSwitch.setEnabled(false);
                 addIngredientButton.setEnabled(false);
                 addIngredientButton.setVisibility(View.GONE);
-                cancel.setVisibility(View.GONE);
+                cancel.hide();
                 cancel.setEnabled(false);
                 uploadImage.setEnabled(false);
                 uploadImage.setVisibility(View.GONE);
@@ -402,7 +411,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
         /* Defines the recycler view(s) here, in order to populate it with ingredients the user doesn't have first,
         Or in the case where it is cookable, so it ignores the second list entirely
          */
-        ingredientAdapter = new IngredientAdapter(ingList);
+        ingredientAdapter = new IngredientAdapter(ingList, false);
         recipeListView.setAdapter(ingredientAdapter);
 
         if (cookable) {
@@ -432,7 +441,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
             recipeListView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
                     DividerItemDecoration.VERTICAL));
         } else {
-            IngredientAdapter neededIngredientsAdapter = new IngredientAdapter(newIngList);
+            IngredientAdapter neededIngredientsAdapter = new IngredientAdapter(newIngList, false);
             //Setting the list adapter
             recipeListView.setAdapter(neededIngredientsAdapter);
             //Generating a layout and dividers for the list
@@ -441,14 +450,14 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     DividerItemDecoration.VERTICAL));
             recipeListView.setBackgroundColor(Color.RED);
             RecyclerView ownedIngredientsView = findViewById(R.id.cookable_list_ingredients);
-            IngredientAdapter ingredientAdapter = new IngredientAdapter(oldIngList);
+            IngredientAdapter ingredientAdapter = new IngredientAdapter(oldIngList, false);
             //Setting the list adapter
             ownedIngredientsView.setAdapter(ingredientAdapter);
             //Generating a layout and dividers for the list
             ownedIngredientsView.setLayoutManager(new LinearLayoutManager(this));
             ownedIngredientsView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
                     DividerItemDecoration.VERTICAL));
-            cook.setVisibility(View.INVISIBLE);
+            cook.hide();
         }
         final Context context = this;
 
