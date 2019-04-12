@@ -1,12 +1,7 @@
 package com.csed.foodtracker;
 
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-import android.support.test.InstrumentationRegistry;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 

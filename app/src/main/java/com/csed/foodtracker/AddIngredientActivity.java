@@ -112,12 +112,12 @@ public class AddIngredientActivity extends AppCompatActivity {
                     } else {
                         cursor.moveToPosition(0);
                         int count = cursor.getInt(cursor.getColumnIndex("num")); // If this returns anything then it's fine
-                        cursor.close();
 //                        int value = count + Integer.parseInt(textAmount.getText().toString());
                         int value = Integer.parseInt(textAmount.getText().toString());
 
                         mDb.execSQL("UPDATE Ingredients SET num =" + value + " WHERE name = '" + newName + "'"); // Should increase the value
                     }
+                    cursor.close();
                     finish();
                 } else {
                     Toast.makeText(AddIngredientActivity.this, "Enter a name!", Toast.LENGTH_SHORT).show();

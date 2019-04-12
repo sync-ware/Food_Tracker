@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -18,10 +17,12 @@ import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -64,6 +65,8 @@ public class ViewRecipeActivity extends AppCompatActivity {
     int GALLERY = 1;
     ImageView imageView;
     Uri contentURI;
+    int PERMISSIONS = 2;
+    Button removeImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +99,8 @@ public class ViewRecipeActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        removeImage = findViewById(R.id.removeImageButton);
+
 
         //Retrieve Recipe from intent that was passed on to this activity
         recipe = (Recipe) getIntent().getSerializableExtra("recipe");
@@ -108,77 +113,9 @@ public class ViewRecipeActivity extends AppCompatActivity {
         if (recipe == null) {
             recipe = new Recipe();
         }
-        //TODO: Actually request the permission
-            if (recipe.getImage() != null) {
-                Drawable image;
-                switch (recipe.getImage()) {
-                    case ("stock1"):
-                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock1, null);
-                        imageView.setImageDrawable(image);
-                        break;
-
-                    case ("stock2"):
-                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock2, null);
-                        imageView.setImageDrawable(image);
-                        break;
-
-                    case ("stock3"):
-                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock3, null);
-                        imageView.setImageDrawable(image);
-                        break;
-
-                    case ("stock4"):
-                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock4, null);
-                        imageView.setImageDrawable(image);
-                        break;
-
-                    case ("stock5"):
-                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock5, null);
-                        imageView.setImageDrawable(image);
-                        break;
-
-                    case ("stock6"):
-                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock6, null);
-                        imageView.setImageDrawable(image);
-                        break;
-
-                    case ("stock7"):
-                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock7, null);
-                        imageView.setImageDrawable(image);
-                        break;
-
-                    case ("stock8"):
-                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock8, null);
-                        imageView.setImageDrawable(image);
-                        break;
-
-                    case ("stock9"):
-                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock9, null);
-                        imageView.setImageDrawable(image);
-                        break;
-
-                    case ("stock10"):
-                        image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock10, null);
-                        imageView.setImageDrawable(image);
-                        break;
-
-                    default:
-                        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                                != PackageManager.PERMISSION_GRANTED) {
-                            Toast.makeText(this, "Permission not granted, using default image", Toast.LENGTH_SHORT).show();
-                            // Permission is not granted
-                        } else {
-                            try {
-                                Uri uri = Uri.parse(recipe.getImage());
-                                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-                                imageView.setImageBitmap(bitmap);
-                            } catch (IOException e) {
-                                Toast.makeText(this, "No image found, using default", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        break;
-                }
-            }
+        if (recipe.getImage() != null) {
+            addImage();
+        }
         final Button uploadImage = (Button) findViewById(R.id.addImageButton);
         uploadImage.setEnabled(false);
         uploadImage.setVisibility(View.GONE);
@@ -199,7 +136,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 getSystemService(LAYOUT_INFLATER_SERVICE);
         //Assigning the layout/UI to the popup window
         View popupView = inflater.inflate(R.layout.popup_add_ingredient,null);
-
+        removeImage.setVisibility(View.GONE);
         final TextInputEditText textName = (TextInputEditText) popupView.findViewById(R.id.text_name);
         final EditText textAmount = (EditText) popupView.findViewById(R.id.text_number);
         Button confirmIngredientButton = (Button) popupView.findViewById(R.id.button_confirm_ingredient);
@@ -210,7 +147,15 @@ public class ViewRecipeActivity extends AppCompatActivity {
         final Drawable notFav = ResourcesCompat.getDrawable(getResources(), R.drawable.not_favourite, null);
         final Drawable notFavDark = ResourcesCompat.getDrawable(getResources(), R.drawable.not_favourite_dark, null);
         final Drawable fav = ResourcesCompat.getDrawable(getResources(), R.drawable.favourite, null);
-
+        removeImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                imageView.setImageBitmap(null);
+                contentURI = Uri.parse("");
+                removeImage.setVisibility(View.GONE);
+                imageView.setVisibility(View.GONE);
+            }
+        });
         favouriteSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -309,16 +254,17 @@ public class ViewRecipeActivity extends AppCompatActivity {
                         if (favourite) {
                             mode = 1;
                         }
-                        String url;
                         if (contentURI == null) {
-                            url = null;
+                            mDb.execSQL("UPDATE Recipes SET name = '" + recipeName.getText() + "', description = '"
+                                    + recipeDesc.getText() + "', prep_time = '" + recipePrepTime.getText() + "', calories = "
+                                    + recipeCalories.getText() + ", url = '" + recipeUrl.getText() + "', favourite = '" + mode + "' WHERE recipe_id = "
+                                    + recipe.getId());
                         } else {
-                            url = contentURI.toString();
+                            mDb.execSQL("UPDATE Recipes SET name = '" + recipeName.getText() + "', description = '"
+                                    + recipeDesc.getText() + "', image = '"+ contentURI.toString() + "', prep_time = '" + recipePrepTime.getText() + "', calories = "
+                                    + recipeCalories.getText() + ", url = '" + recipeUrl.getText() + "', favourite = '" + mode + "' WHERE recipe_id = "
+                                    + recipe.getId());
                         }
-                        mDb.execSQL("UPDATE Recipes SET name = '" + recipeName.getText() + "', description = '"
-                                + recipeDesc.getText() + "', image = '"+ url + "', prep_time = '" + recipePrepTime.getText() + "', calories = "
-                                + recipeCalories.getText() + ", url = '" + recipeUrl.getText() + "', favourite = '" + mode + "' WHERE recipe_id = "
-                                + recipe.getId());
                         Toast.makeText(ViewRecipeActivity.this, "Recipe Updated!", Toast.LENGTH_SHORT).show();
                         fab.setImageResource(R.drawable.ic_edit);
                         recipeName.setEnabled(false);
@@ -423,7 +369,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                         mDb.execSQL("UPDATE Ingredients SET num = num-'" + ing.getNumber() + "' WHERE name = '" + ing.getName() + "'");
                     }
                     Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-// Vibrate for 500 milliseconds
+                    // Vibrate for 500 milliseconds
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         v.vibrate(VibrationEffect.createOneShot(250, VibrationEffect.DEFAULT_AMPLITUDE));
                     } else {
@@ -481,7 +427,9 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 //Allow text boxes to be clicked on
                 popup.setFocusable(true);
                 //Small UI thing that makes the popup stick out
-                popup.setElevation(5.0f);
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    popup.setElevation(5.0f);
+                }
                 //Spinner object (Dropdown menu)
                 final Spinner spInventory = (Spinner) popupView.findViewById(R.id.spinner_inventory);
                 /*Giving the spinner a list of ingredients the user currently has.
@@ -595,14 +543,97 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 popup.showAtLocation(view, Gravity.CENTER, 0, 0);
             }
         });
+    }
 
+    public void addImage() {
+        Drawable image;
+        imageView.setVisibility(View.VISIBLE);
+        switch (recipe.getImage()) {
+            case ("stock1"):
+                image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock1, null);
+                imageView.setImageDrawable(image);
+                removeImage.setVisibility(View.VISIBLE);
+                break;
+
+            case ("stock2"):
+                image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock2, null);
+                imageView.setImageDrawable(image);
+                removeImage.setVisibility(View.VISIBLE);
+                break;
+
+            case ("stock3"):
+                image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock3, null);
+                imageView.setImageDrawable(image);
+                removeImage.setVisibility(View.VISIBLE);
+                break;
+
+            case ("stock4"):
+                image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock4, null);
+                imageView.setImageDrawable(image);
+                removeImage.setVisibility(View.VISIBLE);
+                break;
+
+            case ("stock5"):
+                image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock5, null);
+                imageView.setImageDrawable(image);
+                removeImage.setVisibility(View.VISIBLE);
+                break;
+
+            case ("stock6"):
+                image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock6, null);
+                imageView.setImageDrawable(image);
+                removeImage.setVisibility(View.VISIBLE);
+                break;
+
+            case ("stock7"):
+                image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock7, null);
+                imageView.setImageDrawable(image);
+                removeImage.setVisibility(View.VISIBLE);
+                break;
+
+            case ("stock8"):
+                image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock8, null);
+                imageView.setImageDrawable(image);
+                removeImage.setVisibility(View.VISIBLE);
+                break;
+
+            case ("stock9"):
+                image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock9, null);
+                imageView.setImageDrawable(image);
+                removeImage.setVisibility(View.VISIBLE);
+                break;
+
+            case ("stock10"):
+                image = ResourcesCompat.getDrawable(getResources(), R.drawable.stock10, null);
+                imageView.setImageDrawable(image);
+                removeImage.setVisibility(View.VISIBLE);
+                break;
+
+            default:
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},PERMISSIONS);
+                    // Permission is not granted
+                } else {
+                    try {
+                        Uri uri = Uri.parse(recipe.getImage());
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                        imageView.setImageBitmap(bitmap);
+                        removeImage.setVisibility(View.VISIBLE);
+                    } catch (IOException e) {
+                        Toast.makeText(this, "No image found, using default", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+        }
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == this.RESULT_CANCELED) {
+        if (resultCode == RESULT_CANCELED) {
             return;
         }
         if (requestCode == GALLERY) {
@@ -610,11 +641,34 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 contentURI = data.getData();
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI);
+                    imageView.setImageBitmap(bitmap);
                     Toast.makeText(ViewRecipeActivity.this, "Image Saved!", Toast.LENGTH_SHORT).show();
+                    removeImage.setVisibility(View.VISIBLE);
 
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Toast.makeText(ViewRecipeActivity.this, "Failed!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ViewRecipeActivity.this, "There has been an error, please try again soon!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSIONS) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Read permissions not granted.", Toast.LENGTH_SHORT).show();
+                imageView.setVisibility(View.GONE);
+            } else {
+                try {
+                    Uri uri = Uri.parse(recipe.getImage());
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                    imageView.setVisibility(View.VISIBLE);
+                    imageView.setImageBitmap(bitmap);
+                } catch (IOException e) {
+                    Toast.makeText(this, "No image found.", Toast.LENGTH_SHORT).show();
+                    imageView.setVisibility(View.GONE);
                 }
             }
         }

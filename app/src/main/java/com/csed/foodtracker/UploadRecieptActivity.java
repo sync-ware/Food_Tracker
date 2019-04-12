@@ -147,7 +147,7 @@ public class UploadRecieptActivity extends AppCompatActivity {
 
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Toast.makeText(UploadRecieptActivity.this, "Failed!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(UploadRecieptActivity.this, "There has been an error, please try again soon!", Toast.LENGTH_SHORT).show();
                 }
             }
         } else if (requestCode == CAMERA) {
@@ -157,7 +157,7 @@ public class UploadRecieptActivity extends AppCompatActivity {
                 extractText(bitmap);
                 Toast.makeText(UploadRecieptActivity.this, "Image Saved!", Toast.LENGTH_SHORT).show();
             } catch (IOException|NullPointerException e) {
-                Toast.makeText(UploadRecieptActivity.this, "There's been an error. Please try again soon!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(UploadRecieptActivity.this, "There has been an error. Please try again soon!", Toast.LENGTH_SHORT).show();
             }
         }
     }

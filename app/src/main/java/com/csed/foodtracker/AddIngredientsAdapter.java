@@ -106,11 +106,11 @@ public class AddIngredientsAdapter extends ArrayAdapter<Ingredient> {
             } else {
                 cursor.moveToPosition(0);
                 int count = cursor.getInt(cursor.getColumnIndex("num")); // If this returns anything then it's fine
-                cursor.close();
                 int value = count+Integer.parseInt(val);
 
                 mDb.execSQL("UPDATE Ingredients SET num ="+value+" WHERE name = '"+ingredientList.get(i).getName()+"'"); // Should increase the value
             }
+            cursor.close();
         }
         return true;
     }

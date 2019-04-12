@@ -46,6 +46,13 @@
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:id="@+id/removeImageButton"
+                android:layout_gravity="center"
+                android:text="Remove Image"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:id="@+id/addImageButton"
                 android:layout_gravity="center"
                 android:text="Add Image"/>

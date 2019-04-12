@@ -1,12 +1,16 @@
 package com.csed.foodtracker;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +26,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -34,6 +39,10 @@ public class AddRecipeActivity extends AppCompatActivity {
     DatabaseHelper mDBHelper;
     SQLiteDatabase mDb;
     Recipe recipe = new Recipe();
+    int GALLERY = 1;
+    Uri contentURI;
+    ImageView imageView;
+    Button removeImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +101,29 @@ public class AddRecipeActivity extends AppCompatActivity {
         final EditText prepTime = findViewById(R.id.text_preptime);
         final EditText calories = findViewById(R.id.text_calories);
         final EditText url = findViewById(R.id.text_url);
-
+        final Button uploadImage = findViewById(R.id.addImageButton);
+        removeImage = findViewById(R.id.removeImageButton);
+        removeImage.setVisibility(View.GONE);
+        imageView = findViewById(R.id.image);
+        imageView.setVisibility(View.GONE);
+        uploadImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(galleryIntent, GALLERY);
+                Toast.makeText(AddRecipeActivity.this, "Photo Uploaded", Toast.LENGTH_SHORT).show();
+            }
+        });
+        removeImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                imageView.setImageBitmap(null);
+                contentURI = null;
+                removeImage.setVisibility(View.GONE);
+                imageView.setVisibility(View.GONE);
+            }
+        });
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,14 +132,23 @@ public class AddRecipeActivity extends AppCompatActivity {
                     // Insert recipe to the respective table
                     String name = textName.getText().toString();
                     String newName = name.substring(0, 1).toUpperCase() + name.substring(1); // Should capitalise the first letter
+                    if (contentURI != null) {
+                        mDb.execSQL("Insert into 'Recipes'(name, description, image, prep_time, calories, url) VALUES('"
+                                + newName + "','"
+                                + description.getText().toString() + "','"
+                                + contentURI.toString() + "','"
+                                + prepTime.getText().toString() + "','"
+                                + calories.getText().toString() + "','"
+                                + url.getText().toString() + "')");
+                    } else {
+                        mDb.execSQL("Insert into 'Recipes'(name, description, prep_time, calories, url) VALUES('"
+                                + newName + "','"
+                                + description.getText().toString() + "','"
+                                + prepTime.getText().toString() + "','"
+                                + calories.getText().toString() + "','"
+                                + url.getText().toString() + "')");
+                    }
 
-                    mDb.execSQL("Insert into 'Recipes'(name, description, image, prep_time, calories, url) VALUES('"
-                            + newName + "','"
-                            + description.getText().toString() + "','"
-                            + newName + ".jpg','"
-                            + prepTime.getText().toString() + "','"
-                            + calories.getText().toString() + "','"
-                            + url.getText().toString() + "')");
                     recipe.setName(newName);
 
                     Cursor cursor = mDb.rawQuery("SELECT recipe_id FROM Recipes WHERE name='" + recipe.getName() + "'", null);
@@ -155,7 +195,9 @@ public class AddRecipeActivity extends AppCompatActivity {
                 //Allow text boxes to be clicked on
                 popup.setFocusable(true);
                 //Small UI thing that makes the popup stick out
-                popup.setElevation(5.0f);
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    popup.setElevation(5.0f);
+                }
 
                 //Spinner object (Dropdown menu)
                 final Spinner spInventory = (Spinner) popupView.findViewById(R.id.spinner_inventory);
@@ -275,6 +317,29 @@ public class AddRecipeActivity extends AppCompatActivity {
                 popup.showAtLocation(view, Gravity.CENTER, 0, 0);
             }
         });
+    }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_CANCELED) {
+            return;
+        }
+        if (requestCode == GALLERY) {
+            if (data != null) {
+                contentURI = data.getData();
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI);
+                    imageView.setVisibility(View.VISIBLE);
+                    imageView.setImageBitmap(bitmap);
+                    Toast.makeText(AddRecipeActivity.this, "Image Saved!", Toast.LENGTH_SHORT).show();
+                    removeImage.setVisibility(View.VISIBLE);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(AddRecipeActivity.this, "There has been an error, please try again soon!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
     }
 }
