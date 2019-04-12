@@ -122,18 +122,32 @@
 
             </android.support.design.widget.TextInputLayout>
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/input_url"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="URL">
+                android:orientation="horizontal">
 
-                <android.support.design.widget.TextInputEditText
-                    android:id="@+id/text_url"
-                    android:layout_width="match_parent"
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/input_url"
+                    android:layout_width="0dp"
+                    android:layout_weight=".8"
                     android:layout_height="wrap_content"
-                    android:enabled="false" />
-            </android.support.design.widget.TextInputLayout>
+                    android:hint="URL">
+
+                    <android.support.design.widget.TextInputEditText
+                        android:id="@+id/text_url"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </android.support.design.widget.TextInputLayout>
+                <Button
+                    android:id="@+id/url_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_weight=".3"
+                    android:text="Access URL" />
+            </LinearLayout>
             <Button
                 android:id="@+id/button_add_ingredient"
                 android:layout_width="match_parent"

@@ -1,6 +1,7 @@
 package com.csed.foodtracker;
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -31,6 +32,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -129,17 +131,22 @@ public class ViewRecipeActivity extends AppCompatActivity {
         recipeCalories.setText(Integer.toString(recipe.getCalories()));
         final TextInputEditText recipeUrl = (TextInputEditText) findViewById(R.id.text_url);
         recipeUrl.setText(recipe.getUrl());
+        recipeUrl.setEnabled(false);
         final Switch favouriteSwitch = (Switch) findViewById(R.id.switch2);
         final Button addIngredientButton = (Button) findViewById(R.id.button_add_ingredient);
         //inflater pulls a layout resource
         LayoutInflater inflater = (LayoutInflater) getApplicationContext().
                 getSystemService(LAYOUT_INFLATER_SERVICE);
         //Assigning the layout/UI to the popup window
-        View popupView = inflater.inflate(R.layout.popup_add_ingredient,null);
-        removeImage.setVisibility(View.GONE);
-        final TextInputEditText textName = (TextInputEditText) popupView.findViewById(R.id.text_name);
-        final EditText textAmount = (EditText) popupView.findViewById(R.id.text_number);
-        Button confirmIngredientButton = (Button) popupView.findViewById(R.id.button_confirm_ingredient);
+        try {
+            View popupView = inflater.inflate(R.layout.popup_add_ingredient, null);
+            removeImage.setVisibility(View.GONE);
+            final TextInputEditText textName = (TextInputEditText) popupView.findViewById(R.id.text_name);
+            final EditText textAmount = (EditText) popupView.findViewById(R.id.text_number);
+            Button confirmIngredientButton = (Button) popupView.findViewById(R.id.button_confirm_ingredient);
+        } catch (InflateException e) {
+
+        }
         favouriteSwitch.setEnabled(false);
         addIngredientButton.setEnabled(false);
         addIngredientButton.setVisibility(View.GONE);
@@ -147,6 +154,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
         final Drawable notFav = ResourcesCompat.getDrawable(getResources(), R.drawable.not_favourite, null);
         final Drawable notFavDark = ResourcesCompat.getDrawable(getResources(), R.drawable.not_favourite_dark, null);
         final Drawable fav = ResourcesCompat.getDrawable(getResources(), R.drawable.favourite, null);
+        Button accessWebsite = findViewById(R.id.url_button);
         removeImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -213,15 +221,20 @@ public class ViewRecipeActivity extends AppCompatActivity {
         }
         cursor.close();
         RecyclerView recipeListView = findViewById(R.id.list_ingredients);
-
+        final Context context = this;
         //URL click event, opens the web page into a chrome custom tab
-        recipeUrl.setOnClickListener(new View.OnClickListener() {
+        accessWebsite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Chrome Custom Tabs can be used to open up web pages in the app itself
                 CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                Toast.makeText(context, "Launching website...", Toast.LENGTH_SHORT).show();
                 CustomTabsIntent customTabsIntent = builder.build();
-                customTabsIntent.launchUrl(getApplicationContext(), Uri.parse(recipeUrl.getText().toString()));
+                try {
+                    customTabsIntent.launchUrl(context, Uri.parse(recipeUrl.getText().toString()));
+                } catch (ActivityNotFoundException e) {
+                    Toast.makeText(context, "Not a valid URL, cancelling action.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -405,7 +418,6 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     DividerItemDecoration.VERTICAL));
             cook.hide();
         }
-        final Context context = this;
 
         //Add Ingredient button that generates a small popup menu
         addIngredientButton.setOnClickListener(new View.OnClickListener() {
@@ -688,6 +700,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
             case R.id.action_delete:
                 mDb.execSQL("DELETE FROM Recipes WHERE recipe_id = " + recipe.getId() + ";");
                 mDb.execSQL("DELETE FROM RecipeIngredients WHERE recipe_id = " + recipe.getId() + ";");
+                Toast.makeText(this, "Deleted recipe", Toast.LENGTH_SHORT).show();
                 //Go back to MainActivity
                 finish();
                 return true;
